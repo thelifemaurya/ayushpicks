@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabaseBrowser } from '@/lib/supabase'
-import { ADMIN_EMAIL } from '@/lib/config'
+import { ADMIN_EMAIL, SITE_URL } from '@/lib/config'
 
 const initialForm = { name:'', affiliate_url:'', image_url:'', price:'', old_price:'', category_id:'', short_description:'', why_picked:'', published:false, featured:false }
 
@@ -21,7 +21,12 @@ export default function Admin(){
 
   useEffect(()=>{sb.auth.getUser().then(({data})=>setUser(data.user));const {data:sub}=sb.auth.onAuthStateChange((_e,s)=>setUser(s?.user??null));return()=>sub.subscription.unsubscribe()},[])
   useEffect(()=>{if(user?.email===ADMIN_EMAIL){load();sb.from('categories').select('*').order('name').then(({data})=>setCategories(data||[]))}},[user])
-  async function login(){setBusy(true);setMsg('');const {error}=await sb.auth.signInWithOtp({email:email.trim(),options:{emailRedirectTo:window.location.origin+'/auth/callback?next=/admin'}});setMsg(error?.message||'Magic link sent. Check your email.');setSent(!error);setBusy(false)}
+  async function login(){
+    setBusy(true);setMsg('');setSent(false)
+    const redirectTo=`${SITE_URL}/auth/callback?next=/admin`
+    const {error}=await sb.auth.signInWithOtp({email:email.trim(),options:{emailRedirectTo:redirectTo,shouldCreateUser:false}})
+    setMsg(error?.message||'Magic link sent. Check your email.');setSent(!error);setBusy(false)
+  }
   async function load(){const {data}=await sb.from('products').select('*').order('created_at',{ascending:false});setProducts(data||[])}
   function slugify(v:string){return v.toLowerCase().normalize('NFKD').replace(/[^a-z0-9\s-]/g,'').trim().replace(/[\s_-]+/g,'-').replace(/^-+|-+$/g,'')}
   function startEdit(p:any){setEditing(p.id);setForm({name:p.name||'',affiliate_url:p.affiliate_url||'',image_url:p.image_url||'',price:p.price?.toString()||'',old_price:p.old_price?.toString()||'',category_id:p.category_id||'',short_description:p.short_description||'',why_picked:p.why_picked||'',published:!!p.published,featured:!!p.featured});window.scrollTo({top:0,behavior:'smooth'})}
