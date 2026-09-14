@@ -45,7 +45,8 @@ tags: string[] (3-8 useful search/category tags)
 
 No markdown. No code fences.`
 
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=' + encodeURIComponent(apiKey), {
+    const model = 'gemini-3.5-flash-lite'
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -58,7 +59,8 @@ No markdown. No code fences.`
     const data = await response.json()
     if (!response.ok) {
       console.error('Gemini API error', response.status, data)
-      return NextResponse.json({ error: 'Gemini AI request failed. Check your Gemini API key/free-tier access.' }, { status: 502 })
+      const apiMessage = typeof data?.error?.message === 'string' ? data.error.message : ''
+      return NextResponse.json({ error: apiMessage ? `Gemini request failed: ${apiMessage}` : 'Gemini AI request failed. Check your Gemini API key/free-tier access.' }, { status: 502 })
     }
 
     const text = data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('').trim()
