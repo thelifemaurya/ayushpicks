@@ -1,16 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabaseBrowser } from '@/lib/supabase'
 import { ADMIN_EMAIL } from '@/lib/config'
 
-const modes = [
-  ['improve', 'Improve'],
-  ['shorten', 'Shorten'],
-  ['premium', 'Premium'],
-  ['seo', 'SEO'],
-]
+const modes = [['improve', 'Improve'], ['shorten', 'Shorten'], ['premium', 'Premium'], ['seo', 'SEO']]
 
 export default function AIWriter() {
   const sb = supabaseBrowser()
@@ -23,12 +18,12 @@ export default function AIWriter() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
 
-  useState(() => {
+  useEffect(() => {
     sb.auth.getUser().then(({ data }) => {
       setAllowed(data.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase())
       setChecked(true)
     })
-  })
+  }, [sb])
 
   async function rewrite() {
     if (!text.trim()) return setMessage('Paste a description first.')
@@ -38,17 +33,16 @@ export default function AIWriter() {
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || 'Request failed')
       setResult(data.text || '')
-    } catch (error: any) {
-      setMessage(error?.message || 'Something went wrong.')
-    } finally { setBusy(false) }
+    } catch (error: any) { setMessage(error?.message || 'Something went wrong.') }
+    finally { setBusy(false) }
   }
 
   if (!checked) return <main className="aiPage"><div className="aiCard">Checking access…</div></main>
   if (!allowed) return <main className="aiPage"><div className="aiCard"><Link href="/admin">← Admin</Link><h1>AI Writer</h1><p>Admin access required.</p></div></main>
 
-  return <main className="aiPage"><div className="aiWrap"><header><div><Link className="back" href="/admin">← Admin dashboard</Link><div className="eyebrow">AYUSHPICKS · AI WRITER</div><h1>Make product copy better.</h1><p>Paste retailer/source copy and turn it into concise, original AYUSHPICKS-style copy.</p></div></header>
-    <section className="aiCard"><label>Product name<input value={productName} onChange={e=>setProductName(e.target.value)} placeholder="e.g. Sony WH-CH520" /></label><label>Original description<textarea value={text} onChange={e=>setText(e.target.value)} placeholder="Paste the product description here…" /></label><div className="modes">{modes.map(([value,label])=><button key={value} className={mode===value?'active':''} onClick={()=>setMode(value)}>{label}</button>)}</div><button className="generate" disabled={busy} onClick={rewrite}>{busy?'Writing…':'Enhance with AI'}</button>{message&&<p className="message">{message}</p>}</section>
-    {result&&<section className="aiCard output"><div className="outputHead"><div><span className="eyebrow">RESULT</span><h2>Ready to use</h2></div><button onClick={()=>navigator.clipboard.writeText(result)}>Copy</button></div><p>{result}</p></section>}
+  return <main className="aiPage"><div className="aiWrap"><header><Link className="back" href="/admin">← Admin dashboard</Link><div className="eyebrow">AYUSHPICKS · AI WRITER</div><h1>Make product copy better.</h1><p>Paste retailer/source copy and turn it into concise, original AYUSHPICKS-style copy.</p></header>
+    <section className="aiCard"><label>Product name<input value={productName} onChange={e=>setProductName(e.target.value)} placeholder="e.g. Sony WH-CH520" /></label><label>Original description<textarea value={text} onChange={e=>setText(e.target.value)} placeholder="Paste the product description here…" /></label><div className="modes">{modes.map(([value,label])=><button type="button" key={value} className={mode===value?'active':''} onClick={()=>setMode(value)}>{label}</button>)}</div><button type="button" className="generate" disabled={busy} onClick={rewrite}>{busy?'Writing…':'Enhance with AI'}</button>{message&&<p className="message">{message}</p>}</section>
+    {result&&<section className="aiCard output"><div className="outputHead"><div><span className="eyebrow">RESULT</span><h2>Ready to use</h2></div><button type="button" onClick={()=>navigator.clipboard.writeText(result)}>Copy</button></div><p>{result}</p></section>}
     <p className="note">AI is instructed not to invent product facts. Always review the final copy before publishing.</p>
   </div><style jsx>{styles}</style></main>
 }
