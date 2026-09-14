@@ -10,22 +10,15 @@ export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies()
     const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-      cookies: {
-        getAll() { return cookieStore.getAll() },
-        setAll() {},
-      },
+      cookies: { getAll() { return cookieStore.getAll() }, setAll() {} },
     })
-
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user?.email || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    if (!user?.email || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await request.json()
     const text = String(body?.text || '').trim()
     const productName = String(body?.productName || '').trim()
     const mode = String(body?.mode || 'improve')
-
     if (!text) return NextResponse.json({ error: 'Description is required.' }, { status: 400 })
     if (text.length > 5000) return NextResponse.json({ error: 'Description is too long.' }, { status: 400 })
 
@@ -37,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { text: output } = await generateText({
-      model: 'openai/gpt-5.5',
+      model: 'google/gemini-2.5-flash-lite',
       temperature: 0.3,
       system: `You are the editorial copy assistant for AYUSHPICKS, a product-discovery website. ${instructions[mode] || instructions.improve}
 
@@ -50,7 +43,6 @@ Rules:
 - Prefer 1 short paragraph for a product short description.`,
       prompt: `Product: ${productName || 'Unknown product'}\n\nOriginal copy:\n${text}`,
     })
-
     return NextResponse.json({ text: output.trim() })
   } catch (error) {
     console.error('AI rewrite error', error)
