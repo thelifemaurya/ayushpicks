@@ -1,4 +1,3 @@
-import { generateText } from 'ai'
 import { createServerClient } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
@@ -17,16 +16,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const apiKey = process.env.GEMINI_API_KEY
+    if (!apiKey) return NextResponse.json({ error: 'Gemini API is not configured yet.' }, { status: 503 })
+
     const body = await request.json()
     const productName = String(body?.productName || '').trim()
     const source = String(body?.source || '').trim()
     if (!productName || !source) return NextResponse.json({ error: 'Product name and source description are required.' }, { status: 400 })
     if (source.length > 12000) return NextResponse.json({ error: 'Source description is too long.' }, { status: 400 })
 
-    const { text } = await generateText({
-      model: 'google/gemini-2.5-flash-lite',
-      temperature: 0.2,
-      system: `You are the product-editorial assistant for AYUSHPICKS. Create useful, original product content from the supplied source text.
+    const system = `You are the product-editorial assistant for AYUSHPICKS. Create useful, original product content from the supplied source text.
 
 STRICT FACT RULES:
 - Use ONLY facts supported by the source text.
@@ -44,13 +43,30 @@ pros: string[] (2-5 grounded points)
 cons: string[] (0-3 grounded limitations)
 tags: string[] (3-8 useful search/category tags)
 
-No markdown. No code fences.`,
-      prompt: `Product name: ${productName}\n\nSource information:\n${source}`,
+No markdown. No code fences.`
+
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=' + encodeURIComponent(apiKey), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: 'user', parts: [{ text: `Product name: ${productName}\n\nSource information:\n${source}` }] }],
+        generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+      }),
     })
 
+    const data = await response.json()
+    if (!response.ok) {
+      console.error('Gemini API error', response.status, data)
+      return NextResponse.json({ error: 'Gemini AI request failed. Check your Gemini API key/free-tier access.' }, { status: 502 })
+    }
+
+    const text = data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('').trim()
+    if (!text) return NextResponse.json({ error: 'Gemini returned no content. Please try again.' }, { status: 502 })
+
     let result: any
-    try { result = JSON.parse(text.trim()) } catch {
-      return NextResponse.json({ error: 'AI returned invalid data. Please try again.' }, { status: 502 })
+    try { result = JSON.parse(text) } catch {
+      return NextResponse.json({ error: 'Gemini returned invalid data. Please try again.' }, { status: 502 })
     }
 
     return NextResponse.json({
@@ -62,6 +78,6 @@ No markdown. No code fences.`,
     })
   } catch (error) {
     console.error('AI product generation error', error)
-    return NextResponse.json({ error: 'AI generation failed. Check the AI Gateway setup.' }, { status: 500 })
+    return NextResponse.json({ error: 'AI generation failed. Please try again.' }, { status: 500 })
   }
 }
