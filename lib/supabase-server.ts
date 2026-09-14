@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '@/lib/config'
 
 export function supabaseServer() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-  if (!url || !key) throw new Error('Supabase environment variables are missing.')
-  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } })
+  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
 }
