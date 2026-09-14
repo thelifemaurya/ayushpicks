@@ -1,0 +1,3 @@
+import { PageShell } from '@/components/site'
+export const metadata={title:'Affiliate Disclosure'}
+export default function Disclosure(){return <PageShell title="Affiliate Disclosure" kicker="TRANSPARENCY"><article className="article"><p>Some links on AYUSHPICKS are affiliate links. When you click an affiliate link and complete a qualifying purchase on a retailer’s website, AYUSHPICKS may earn a commission at no additional cost to you.</p><p>Recommendations are intended to be useful and editorially independent. A commission does not guarantee that a product is the right choice for every person.</p><p>AYUSHPICKS may participate in the Amazon Associates program. Where required, we will identify our Amazon Associate relationship clearly.</p></article></PageShell>}
