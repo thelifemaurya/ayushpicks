@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { Search } from 'lucide-react'
+import ThemeToggle from './theme-toggle'
 
 type Product = {
   id: string
@@ -13,7 +15,14 @@ type Product = {
 }
 
 export function Header() {
-  return <header className="nav"><Link className="brand" href="/">AYUSH<span>PICKS</span></Link><nav className="navlinks"><Link href="/products">Discover</Link><Link href="/guides">Guides</Link><Link href="/about">About</Link></nav><Link className="btn" href="/products">Explore</Link></header>
+  return (
+    <header className="nav">
+      <Link className="brand" href="/">AYUSH<span>PICKS</span></Link>
+      <div className="navSearch"><Search size={16}/><input aria-label="Search products" placeholder="Search products, brands & categories" /></div>
+      <nav className="navlinks"><Link href="/products">Discover</Link><Link href="/guides">Guides</Link><Link href="/about">About</Link></nav>
+      <div className="navActions"><ThemeToggle/><Link className="btn navExplore" href="/products">Explore</Link></div>
+    </header>
+  )
 }
 
 export function Footer() {
