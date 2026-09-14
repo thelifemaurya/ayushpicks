@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { SITE_URL } from '@/lib/config'
+import AssistantWidget from '@/components/assistant-widget'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -15,5 +16,5 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>
+  return <html lang="en"><body>{children}<AssistantWidget /></body></html>
 }
