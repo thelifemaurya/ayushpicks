@@ -3,7 +3,6 @@ import { ArrowRight, BadgeCheck, ChevronRight, Search, Sparkles, Star, Zap } fro
 import { redirect } from 'next/navigation'
 import { supabaseServer } from '@/lib/supabase-server'
 import { Header, Footer, ProductCard } from '@/components/site'
-import AdminSessionRedirect from '@/components/admin-session-redirect'
 
 const categories = ['Electronics', 'Gaming', 'Home', 'Fashion', 'Beauty', 'Kitchen', 'Accessories']
 
@@ -24,7 +23,6 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
 
   return (
     <main>
-      <AdminSessionRedirect />
       <div className="container">
         <Header />
 
