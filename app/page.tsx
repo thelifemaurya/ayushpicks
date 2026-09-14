@@ -1,11 +1,22 @@
 import Link from 'next/link'
 import { ArrowRight, BadgeCheck, ChevronRight, Search, Sparkles, Star, Zap } from 'lucide-react'
+import { redirect } from 'next/navigation'
 import { supabaseServer } from '@/lib/supabase-server'
 import { Header, Footer, ProductCard } from '@/components/site'
+import AdminSessionRedirect from '@/components/admin-session-redirect'
 
 const categories = ['Electronics', 'Gaming', 'Home', 'Fashion', 'Beauty', 'Kitchen', 'Accessories']
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams?: Promise<{ code?: string; next?: string }> }) {
+  const params = searchParams ? await searchParams : {}
+
+  // Some Supabase email templates redirect to the Site URL before the app callback.
+  // Never render the public homepage with an auth code; hand it to the secure callback.
+  if (params.code) {
+    const next = params.next === '/admin' ? '/admin' : '/admin'
+    redirect(`/auth/callback?code=${encodeURIComponent(params.code)}&next=${encodeURIComponent(next)}`)
+  }
+
   const supabase = supabaseServer()
   const { data: products } = await supabase
     .from('products').select('*').eq('published', true)
@@ -13,6 +24,7 @@ export default async function Home() {
 
   return (
     <main>
+      <AdminSessionRedirect />
       <div className="container">
         <Header />
 
