@@ -20,6 +20,9 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
   const priorityCategories = [beauty, clothing].filter(Boolean)
   const otherCategories = categoryList.filter((c: any) => !priorityCategories.some((p: any) => p.id === c.id))
 
+  const categoryProducts = async (categoryId?: string) => categoryId ? (await supabase.from('products').select('*').eq('published', true).eq('category_id', categoryId).order('featured', { ascending: false }).order('created_at', { ascending: false }).limit(8)).data || [] : []
+  const [beautyProducts, clothingProducts] = await Promise.all([categoryProducts(beauty?.id), categoryProducts(clothing?.id)])
+
   return (
     <main>
       <div className="container">
@@ -52,12 +55,10 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           <div><Zap size={19}/><b>Decide</b><span>Then shop from the store</span></div>
         </section>
 
-        {(beauty || clothing) && <section className="section" style={{ paddingTop: 42, paddingBottom: 16 }}>
-          <div className="sectionhead"><div><span className="sectionKicker">SHOP BY CATEGORY</span><h2>Beauty & clothing</h2><div className="muted small">Start with the categories people actually shop for.</div></div></div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 14 }}>
-            {beauty && <Link href={`/products?category=${encodeURIComponent(beauty.id)}`} className="categorySpotlight" style={{ minHeight: 112, padding: 20, border: '1px solid var(--line)', borderRadius: 18, background: 'linear-gradient(135deg,var(--panel),rgba(124,77,255,.08))', display: 'flex', alignItems: 'end', justifyContent: 'space-between', gap: 15 }}><div><span className="sectionKicker">BEAUTY</span><h3 style={{ margin: 0, font: '700 23px Manrope', letterSpacing: '-.04em' }}>{beauty.name}</h3></div><ChevronRight size={20}/></Link>}
-            {clothing && <Link href={`/products?category=${encodeURIComponent(clothing.id)}`} className="categorySpotlight" style={{ minHeight: 112, padding: 20, border: '1px solid var(--line)', borderRadius: 18, background: 'linear-gradient(135deg,var(--panel),rgba(79,111,240,.08))', display: 'flex', alignItems: 'end', justifyContent: 'space-between', gap: 15 }}><div><span className="sectionKicker">CLOTHING</span><h3 style={{ margin: 0, font: '700 23px Manrope', letterSpacing: '-.04em' }}>{clothing.name}</h3></div><ChevronRight size={20}/></Link>}
-          </div>
+        {(beauty || clothing) && <section className="section" style={{ paddingTop: 42, paddingBottom: 10 }}>
+          <div className="sectionhead"><div><span className="sectionKicker">SHOP BY CATEGORY</span><h2>Beauty & clothing</h2><div className="muted small">Quick picks first. Open any product for the full details.</div></div></div>
+          {beauty && <div style={{ marginBottom: 28 }}><div className="sectionhead" style={{ marginBottom: 12 }}><h3 style={{ margin: 0, fontSize: 20 }}>{beauty.name}</h3><Link className="viewAll" href={`/products?category=${encodeURIComponent(beauty.id)}`}>See all <ChevronRight size={15}/></Link></div>{beautyProducts.length ? <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 6, scrollbarWidth: 'thin' }}>{beautyProducts.map((p: any) => <ProductCard key={p.id} product={p} compact />)}</div> : <div className="empty">Beauty picks are coming soon.</div>}</div>}
+          {clothing && <div><div className="sectionhead" style={{ marginBottom: 12 }}><h3 style={{ margin: 0, fontSize: 20 }}>{clothing.name}</h3><Link className="viewAll" href={`/products?category=${encodeURIComponent(clothing.id)}`}>See all <ChevronRight size={15}/></Link></div>{clothingProducts.length ? <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 6, scrollbarWidth: 'thin' }}>{clothingProducts.map((p: any) => <ProductCard key={p.id} product={p} compact />)}</div> : <div className="empty">Clothing picks are coming soon.</div>}</div>}
         </section>}
 
         <section className="section picksSection" style={{ paddingTop: 34 }}>
