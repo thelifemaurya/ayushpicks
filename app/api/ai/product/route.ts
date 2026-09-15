@@ -6,19 +6,19 @@ import { ADMIN_EMAIL, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '@/lib/confi
 export const runtime = 'nodejs'
 
 function clean(value: unknown, max = 4000) {
-  return String(value || '').replace(/\\s+/g, ' ').trim().slice(0, max)
-}
-
-function absoluteUrl(value: string, base: string) {
-  try { return new URL(value, base).toString() } catch { return '' }
+  return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max)
 }
 
 function decodeHtml(value: string) {
   return value.replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/&quot;/gi, '"').replace(/&#39;/gi, "'").replace(/&#x27;/gi, "'")
 }
 
+function absoluteUrl(value: string, base: string) {
+  try { return new URL(value, base).toString() } catch { return '' }
+}
+
 function meta(html: string, key: string) {
-  const escaped = key.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const re = new RegExp(`<meta[^>]+(?:property|name)=["']${escaped}["'][^>]+content=["']([^"']+)["'][^>]*>|<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${escaped}["'][^>]*>`, 'i')
   const match = html.match(re)
   return clean(decodeHtml(match?.[1] || match?.[2] || ''))
@@ -33,7 +33,7 @@ function firstMatch(html: string, patterns: RegExp[]) {
 }
 
 function extractProductJsonLd(html: string) {
-  const scripts = [...html.matchAll(/<script[^>]*type=["']application\\/ld\\+json["'][^>]*>([\\s\\S]*?)<\\/script>/gi)]
+  const scripts = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]
   for (const script of scripts) {
     try {
       const parsed = JSON.parse(script[1])
@@ -43,13 +43,6 @@ function extractProductJsonLd(html: string) {
     } catch {}
   }
   return null
-}
-
-function amazonFinalUrl(url: URL, finalUrl: string) {
-  const host = url.hostname.toLowerCase()
-  const isAmazon = host.includes('amazon.') || host === 'amzn.to' || host.endsWith('.amzn.to')
-  if (!isAmazon) return finalUrl
-  return finalUrl
 }
 
 function extractAsin(...values: string[]) {
@@ -76,17 +69,15 @@ async function extractFromPage(sourceUrl: string) {
   })
   if (!response.ok) throw new Error(`Product page could not be fetched (${response.status}).`)
   const html = (await response.text()).slice(0, 4_000_000)
-  const finalUrl = amazonFinalUrl(url, response.url || sourceUrl)
+  const finalUrl = response.url || sourceUrl
   const product = extractProductJsonLd(html)
-
   const asin = extractAsin(finalUrl, sourceUrl, clean(product?.sku), clean(product?.mpn), clean(product?.productID))
 
-  // Prefer Amazon's canonical/product-title fields over generic og:title, which often adds "Amazon.in".
-  const name = clean(product?.name, 700) ||
-    firstMatch(html, [
-      /id=["']productTitle["'][^>]*>([\\s\\S]*?)<\\/[^>]+>/i,
-      /id=["']title["'][^>]*>([\\s\\S]*?)<\\/[^>]+>/i,
-    ]) || meta(html, 'og:title') || firstMatch(html, [/<h1[^>]*>([\\s\\S]*?)<\\/h1>/i])
+  // Prefer the exact product-title element before generic OpenGraph text.
+  const name = clean(product?.name, 700) || firstMatch(html, [
+    /id=["']productTitle["'][^>]*>([\s\S]*?)<\/[^>]+>/i,
+    /id=["']title["'][^>]*>([\s\S]*?)<\/[^>]+>/i,
+  ]) || meta(html, 'og:title') || firstMatch(html, [/<h1[^>]*>([\s\S]*?)<\/h1>/i])
 
   const description = clean(product?.description, 6000) || meta(html, 'og:description') || meta(html, 'description')
   const imageRaw = typeof product?.image === 'string' ? product.image : Array.isArray(product?.image) ? product.image[0] : meta(html, 'og:image')
@@ -95,47 +86,34 @@ async function extractFromPage(sourceUrl: string) {
   const offers = product?.offers
   const offer = Array.isArray(offers) ? offers[0] : offers
   const price = clean(offer?.price) || firstMatch(html, [
-    /"priceAmount"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
-    /"price"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
-    /(?:"|&)price=([0-9]+(?:\\.[0-9]+)?)/i,
+    /"priceAmount"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
+    /"price"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
+    /(?:"|&)price=([0-9]+(?:\.[0-9]+)?)/i,
   ])
   const currency = clean(offer?.priceCurrency) || 'INR'
 
-  // Amazon exposes list/MRP/strike-through prices under several names depending on page variant.
-  // We only accept an old price when it is explicitly present and greater than the selling price.
-  const oldCandidates = [
-    product?.offers?.highPrice,
-    product?.offers?.listPrice,
-    product?.offers?.priceSpecification?.price,
-    firstMatch(html, [
-      /"listPrice"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
-      /"list_price"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
-      /"mrp"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
-      /"strikePrice"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
-      /"wasPrice"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
-      /"basisPrice"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
-      /"priceBeforeDiscount"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
-      /(?:MRP|M\.R\.P\.)[^₹0-9]{0,80}₹?\\s*([0-9][0-9,]*(?:\\.[0-9]+)?)/i,
-      /(?:List Price|Was Price)[^₹0-9]{0,80}₹?\\s*([0-9][0-9,]*(?:\\.[0-9]+)?)/i,
-    ]),
-  ]
+  const oldPriceCandidate = firstMatch(html, [
+    /"listPrice"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
+    /"list_price"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
+    /"mrp"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
+    /"strikePrice"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
+    /"wasPrice"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
+    /"basisPrice"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
+    /"priceBeforeDiscount"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
+    /(?:MRP|M\.R\.P\.)[^₹0-9]{0,100}₹?\s*([0-9][0-9,]*(?:\.[0-9]+)?)/i,
+    /(?:List Price|Was Price)[^₹0-9]{0,100}₹?\s*([0-9][0-9,]*(?:\.[0-9]+)?)/i,
+  ])
+
   const numericPrice = Number(price.replace(/,/g, ''))
   let oldPrice = ''
-  for (const candidate of oldCandidates) {
-    const value = clean(candidate).replace(/,/g, '')
-    if (!value) continue
-    const number = Number(value)
-    if (Number.isFinite(number) && number > 0 && (!numericPrice || number > numericPrice)) {
-      oldPrice = String(number)
-      break
-    }
-  }
+  const candidateNumber = Number(oldPriceCandidate.replace(/,/g, ''))
+  if (candidateNumber > 0 && (!numericPrice || candidateNumber > numericPrice)) oldPrice = String(candidateNumber)
 
   const text = decodeHtml(html)
-    .replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')
-    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
-    .replace(/\\s+/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 16000)
 
