@@ -15,13 +15,13 @@ type Product = {
 
 function BrandMark() {
   return (
-    <span className="brandMark" aria-hidden="true">
-      <svg className="brandIcon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <span className="brandMark" aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--text)', lineHeight: 1 }}>
+      <svg className="brandIcon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 29, height: 29, flex: '0 0 29px', display: 'block' }}>
         <path d="M20 3.5 35.5 12v16L20 36.5 4.5 28V12L20 3.5Z" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round"/>
         <path d="m11.5 27 5.7-14h5.6l5.7 14M14 22.2h12" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"/>
         <path d="m25.8 16.4 2.1 2.1 4-4" stroke="#dc2626" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
-      <span className="brandWord"><strong>AYUSH</strong><span>PICKS</span></span>
+      <span className="brandWord" style={{ color: 'var(--text)', fontFamily: 'Manrope, system-ui, sans-serif', fontWeight: 800, fontSize: 21, letterSpacing: '-0.055em', whiteSpace: 'nowrap' }}><strong style={{ color: 'var(--text)', fontWeight: 800 }}>AYUSH</strong><span style={{ color: 'var(--accent)', fontWeight: 800 }}>PICKS</span></span>
     </span>
   )
 }
