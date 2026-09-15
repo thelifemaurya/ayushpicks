@@ -21,9 +21,12 @@ export default function Image() {
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22 }}>
-          <div style={{ fontSize: 78, fontWeight: 800, letterSpacing: -4 }}>
-            AYUSH<span style={{ color: '#6d8cff' }}>PICKS</span>
-          </div>
+          <img
+            src="https://ayushpicks.vercel.app/ayushpicks-logo-transparent.png"
+            width="520"
+            height="150"
+            style={{ objectFit: 'contain' }}
+          />
           <div style={{ fontSize: 30, color: '#aab4c4' }}>Products worth picking.</div>
           <div style={{ fontSize: 20, color: '#7f8a9d' }}>Useful products • Honest details • Better decisions</div>
         </div>
