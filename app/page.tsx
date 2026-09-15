@@ -4,8 +4,6 @@ import { redirect } from 'next/navigation'
 import { supabaseServer } from '@/lib/supabase-server'
 import { Header, Footer, ProductCard } from '@/components/site'
 
-const LOGO_URL = 'https://raw.githubusercontent.com/thelifemaurya/ayushpicks/main/ayushpicks-logo.png'
-
 export default async function Home({ searchParams }: { searchParams?: Promise<{ code?: string; next?: string }> }) {
   const params = searchParams ? await searchParams : {}
   if (params.code) redirect(`/auth/callback?code=${encodeURIComponent(params.code)}&next=/admin`)
@@ -43,7 +41,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           </div>
           <div className="heroVisual" style={{ minHeight: 280 }}>
             <div className="floatingCard cardA"><span className="miniIcon">★</span><div><b>Better picks</b><small>Less endless scrolling</small></div></div>
-            <div className="visualOrb" style={{ width: 175, height: 175 }}><img src={LOGO_URL} alt="AYUSHPICKS" style={{ width: 130, height: 'auto', maxHeight: 90, objectFit: 'contain' }}/></div>
+            <div className="visualOrb" style={{ width: 175, height: 175 }}><span style={{ fontFamily: 'Manrope, system-ui, sans-serif', fontWeight: 800, fontSize: 27, letterSpacing: '-0.065em' }}><span style={{ color: 'var(--text)' }}>AYUSH</span><span style={{ color: 'var(--accent)' }}>PICKS</span></span></div>
             <div className="floatingCard cardB"><small>Why we picked it</small><strong>Details that actually matter.</strong></div>
           </div>
         </section>
