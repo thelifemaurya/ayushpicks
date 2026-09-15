@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   other: {
     'google-adsense-account': 'ca-pub-1101292617046429',
   },
+  icons: {
+    icon: '/ayushpicks-logo-transparent.png',
+    apple: '/ayushpicks-logo-transparent.png',
+  },
   openGraph: {
     title: 'AYUSHPICKS — Products worth picking',
     description: 'Useful products, practical details and buying guides.',
