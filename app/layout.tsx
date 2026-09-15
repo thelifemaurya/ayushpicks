@@ -37,5 +37,5 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}<AdSenseScript /><AssistantWidget /></body></html>
+  return <html lang="en" className="light"><body>{children}<AdSenseScript /><AssistantWidget /></body></html>
 }
