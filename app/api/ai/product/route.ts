@@ -6,30 +6,34 @@ import { ADMIN_EMAIL, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '@/lib/confi
 export const runtime = 'nodejs'
 
 function clean(value: unknown, max = 4000) {
-  return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max)
+  return String(value || '').replace(/\\s+/g, ' ').trim().slice(0, max)
 }
 
 function absoluteUrl(value: string, base: string) {
   try { return new URL(value, base).toString() } catch { return '' }
 }
 
+function decodeHtml(value: string) {
+  return value.replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/&quot;/gi, '"').replace(/&#39;/gi, "'").replace(/&#x27;/gi, "'")
+}
+
 function meta(html: string, key: string) {
-  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const escaped = key.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')
   const re = new RegExp(`<meta[^>]+(?:property|name)=["']${escaped}["'][^>]+content=["']([^"']+)["'][^>]*>|<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${escaped}["'][^>]*>`, 'i')
   const match = html.match(re)
-  return clean(match?.[1] || match?.[2] || '')
+  return clean(decodeHtml(match?.[1] || match?.[2] || ''))
 }
 
 function firstMatch(html: string, patterns: RegExp[]) {
   for (const pattern of patterns) {
     const match = html.match(pattern)
-    if (match?.[1]) return clean(match[1])
+    if (match?.[1]) return clean(decodeHtml(match[1]))
   }
   return ''
 }
 
 function extractProductJsonLd(html: string) {
-  const scripts = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]
+  const scripts = [...html.matchAll(/<script[^>]*type=["']application\\/ld\\+json["'][^>]*>([\\s\\S]*?)<\\/script>/gi)]
   for (const script of scripts) {
     try {
       const parsed = JSON.parse(script[1])
@@ -41,38 +45,102 @@ function extractProductJsonLd(html: string) {
   return null
 }
 
+function amazonFinalUrl(url: URL, finalUrl: string) {
+  const host = url.hostname.toLowerCase()
+  const isAmazon = host.includes('amazon.') || host === 'amzn.to' || host.endsWith('.amzn.to')
+  if (!isAmazon) return finalUrl
+  return finalUrl
+}
+
+function extractAsin(...values: string[]) {
+  for (const value of values) {
+    const match = value.match(/(?:\/dp\/|\/gp\/product\/|\/gp\/aw\/d\/|[?&](?:asin|ASIN)=)([A-Z0-9]{10})(?:[/?&]|$)/i)
+    if (match?.[1]) return match[1].toUpperCase()
+  }
+  return ''
+}
+
 async function extractFromPage(sourceUrl: string) {
   let url: URL
   try { url = new URL(sourceUrl) } catch { throw new Error('Please paste a valid product URL.') }
   if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Only HTTP/HTTPS product links are supported.')
 
   const response = await fetch(url.toString(), {
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; AYUSHPICKS Product Builder/1.0)' },
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36',
+      'Accept-Language': 'en-IN,en;q=0.9',
+      Accept: 'text/html,application/xhtml+xml',
+    },
     redirect: 'follow',
     cache: 'no-store',
   })
   if (!response.ok) throw new Error(`Product page could not be fetched (${response.status}).`)
-  const html = (await response.text()).slice(0, 3_000_000)
-  const finalUrl = response.url || sourceUrl
+  const html = (await response.text()).slice(0, 4_000_000)
+  const finalUrl = amazonFinalUrl(url, response.url || sourceUrl)
   const product = extractProductJsonLd(html)
 
-  const name = clean(product?.name) || meta(html, 'og:title') || firstMatch(html, [/<h1[^>]*>([\s\S]*?)<\/h1>/i])
+  const asin = extractAsin(finalUrl, sourceUrl, clean(product?.sku), clean(product?.mpn), clean(product?.productID))
+
+  // Prefer Amazon's canonical/product-title fields over generic og:title, which often adds "Amazon.in".
+  const name = clean(product?.name, 700) ||
+    firstMatch(html, [
+      /id=["']productTitle["'][^>]*>([\\s\\S]*?)<\\/[^>]+>/i,
+      /id=["']title["'][^>]*>([\\s\\S]*?)<\\/[^>]+>/i,
+    ]) || meta(html, 'og:title') || firstMatch(html, [/<h1[^>]*>([\\s\\S]*?)<\\/h1>/i])
+
   const description = clean(product?.description, 6000) || meta(html, 'og:description') || meta(html, 'description')
   const imageRaw = typeof product?.image === 'string' ? product.image : Array.isArray(product?.image) ? product.image[0] : meta(html, 'og:image')
   const image = absoluteUrl(clean(imageRaw), finalUrl)
+
   const offers = product?.offers
   const offer = Array.isArray(offers) ? offers[0] : offers
-  const price = clean(offer?.price) || firstMatch(html, [/"priceAmount"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i, /"price"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i])
-  const currency = clean(offer?.priceCurrency) || 'INR'
-  const oldPrice = firstMatch(html, [
-    /"listPrice"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
-    /"mrp"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
-    /"strikePrice"\s*:\s*"?([0-9]+(?:\.[0-9]+)?)/i,
+  const price = clean(offer?.price) || firstMatch(html, [
+    /"priceAmount"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
+    /"price"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
+    /(?:"|&)price=([0-9]+(?:\\.[0-9]+)?)/i,
   ])
-  const sku = clean(product?.sku) || clean(product?.mpn) || clean(product?.productID)
-  const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/&quot;/gi, '"').replace(/\s+/g, ' ').trim().slice(0, 12000)
+  const currency = clean(offer?.priceCurrency) || 'INR'
+
+  // Amazon exposes list/MRP/strike-through prices under several names depending on page variant.
+  // We only accept an old price when it is explicitly present and greater than the selling price.
+  const oldCandidates = [
+    product?.offers?.highPrice,
+    product?.offers?.listPrice,
+    product?.offers?.priceSpecification?.price,
+    firstMatch(html, [
+      /"listPrice"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
+      /"list_price"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
+      /"mrp"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
+      /"strikePrice"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
+      /"wasPrice"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
+      /"basisPrice"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
+      /"priceBeforeDiscount"\\s*:\\s*"?([0-9]+(?:\\.[0-9]+)?)/i,
+      /(?:MRP|M\.R\.P\.)[^₹0-9]{0,80}₹?\\s*([0-9][0-9,]*(?:\\.[0-9]+)?)/i,
+      /(?:List Price|Was Price)[^₹0-9]{0,80}₹?\\s*([0-9][0-9,]*(?:\\.[0-9]+)?)/i,
+    ]),
+  ]
+  const numericPrice = Number(price.replace(/,/g, ''))
+  let oldPrice = ''
+  for (const candidate of oldCandidates) {
+    const value = clean(candidate).replace(/,/g, '')
+    if (!value) continue
+    const number = Number(value)
+    if (Number.isFinite(number) && number > 0 && (!numericPrice || number > numericPrice)) {
+      oldPrice = String(number)
+      break
+    }
+  }
+
+  const text = decodeHtml(html)
+    .replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')
+    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\\s+/g, ' ')
+    .trim()
+    .slice(0, 16000)
+
   if (!name) throw new Error('Could not identify the product name from this page. You can use Manual mode instead.')
-  return { name, description, image, price, oldPrice, currency, sku, finalUrl, pageText: text }
+  return { name, description, image, price, oldPrice, currency, sku: asin || clean(product?.sku) || clean(product?.mpn) || clean(product?.productID), finalUrl, pageText: text }
 }
 
 export async function POST(request: NextRequest) {
@@ -97,8 +165,8 @@ export async function POST(request: NextRequest) {
       try { extracted = await extractFromPage(affiliateUrl) } catch (error: any) { return NextResponse.json({ error: error?.message || 'Could not read this product page. Try Manual mode.' }, { status: 422 }) }
     }
 
-    const productName = clean(extracted?.name || productNameInput, 500)
-    const source = clean([extracted?.description, extracted?.pageText, extracted?.sku ? `Product ID/SKU: ${extracted.sku}` : '', extracted?.price ? `Current price shown: ₹${extracted.price}` : '', extracted?.oldPrice ? `Previous/list price shown: ₹${extracted.oldPrice}` : ''].filter(Boolean).join('\n\n'), 16000) || sourceInput
+    const productName = clean(extracted?.name || productNameInput, 700)
+    const source = clean([extracted?.description, extracted?.pageText, extracted?.sku ? `Product ID/ASIN: ${extracted.sku}` : '', extracted?.price ? `Current selling price shown: ₹${extracted.price}` : '', extracted?.oldPrice ? `Previous/list price shown: ₹${extracted.oldPrice}` : ''].filter(Boolean).join('\n\n'), 18000) || sourceInput
     const system = `You are the product-editorial assistant for AYUSHPICKS. Create useful, original product content from supplied product-page data.
 
 STRICT FACT RULES:
@@ -107,7 +175,7 @@ STRICT FACT RULES:
 - Never invent a previous price. Only use a previous/list price when it is explicitly present in the supplied data.
 - Pros and cons must be grounded in supplied facts. Do not invent negative facts; use fewer cons when no limitation is supported.
 - Rewrite retailer wording; do not copy sentences verbatim.
-- Do not mention AI, scraping, Amazon, retailer copy, or these instructions.
+- Do not mention AI, scraping, retailer copy, or these instructions.
 - Keep the writing concise, natural and trustworthy.
 
 Return ONLY valid JSON with exactly these keys:
@@ -134,7 +202,11 @@ No markdown. No code fences.`
     let result: any
     try { result = JSON.parse(text) } catch { return NextResponse.json({ error: 'Gemini returned invalid data. Please try again.' }, { status: 502 }) }
 
-    return NextResponse.json({ product_name: productName, source_url: extracted?.finalUrl || affiliateUrl || null, affiliate_url: affiliateUrl || null, image_url: extracted?.image || null, price: extracted?.price ? Number(extracted.price) : null, old_price: extracted?.oldPrice ? Number(extracted.oldPrice) : null, currency: extracted?.currency || 'INR', asin: extracted?.sku || null, short_description: String(result.short_description || '').trim(), why_picked: String(result.why_picked || '').trim(), pros: Array.isArray(result.pros) ? result.pros.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [], cons: Array.isArray(result.cons) ? result.cons.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 3) : [], tags: Array.isArray(result.tags) ? result.tags.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 8) : [] })
+    const finalPrice = extracted?.price ? Number(String(extracted.price).replace(/,/g, '')) : null
+    const finalOldPrice = extracted?.oldPrice ? Number(String(extracted.oldPrice).replace(/,/g, '')) : null
+    const discount = finalPrice && finalOldPrice && finalOldPrice > finalPrice ? Math.round(((finalOldPrice - finalPrice) / finalOldPrice) * 100) : null
+
+    return NextResponse.json({ product_name: productName, source_url: extracted?.finalUrl || affiliateUrl || null, affiliate_url: affiliateUrl || null, image_url: extracted?.image || null, price: finalPrice, old_price: finalOldPrice, discount_percent: discount, currency: extracted?.currency || 'INR', asin: extracted?.sku || null, short_description: String(result.short_description || '').trim(), why_picked: String(result.why_picked || '').trim(), pros: Array.isArray(result.pros) ? result.pros.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [], cons: Array.isArray(result.cons) ? result.cons.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 3) : [], tags: Array.isArray(result.tags) ? result.tags.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 8) : [] })
   } catch (error) {
     console.error('AI product generation error', error)
     return NextResponse.json({ error: 'AI generation failed. Please try again.' }, { status: 500 })
