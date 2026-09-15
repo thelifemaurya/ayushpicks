@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Search } from 'lucide-react'
 import ThemeToggle from './theme-toggle'
 
@@ -17,7 +18,9 @@ type Product = {
 export function Header() {
   return (
     <header className="nav">
-      <Link className="brand" href="/" aria-label="AYUSHPICKS home">AYUSH<span>PICKS</span></Link>
+      <Link className="brand" href="/" aria-label="AYUSHPICKS home">
+        <Image src="/ayushpicks-logo-transparent.png" alt="AYUSHPICKS" width={170} height={48} priority />
+      </Link>
       <form className="navSearch" action="/products" role="search">
         <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
       </form>
@@ -28,7 +31,7 @@ export function Header() {
 }
 
 export function Footer() {
-  return <footer className="sitefooter"><div className="footergrid"><div><Link className="brand" href="/">AYUSH<span>PICKS</span></Link><p className="muted small">Useful products. Better decisions.</p></div><div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Products</Link><Link href="/guides">Guides</Link></div><div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div><div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div></div><div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div></footer>
+  return <footer className="sitefooter"><div className="footergrid"><div><Link className="brand" href="/"><Image src="/ayushpicks-logo-transparent.png" alt="AYUSHPICKS" width={155} height={44} /></Link><p className="muted small">Useful products. Better decisions.</p></div><div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Products</Link><Link href="/guides">Guides</Link></div><div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div><div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div></div><div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div></footer>
 }
 
 export function ProductCard({ product }: { product: Product }) {
