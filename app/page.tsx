@@ -4,31 +4,32 @@ import { redirect } from 'next/navigation'
 import { supabaseServer } from '@/lib/supabase-server'
 import { Header, Footer, ProductCard } from '@/components/site'
 
-const categories = ['Electronics', 'Gaming', 'Home', 'Fashion', 'Beauty', 'Kitchen', 'Accessories']
-
 export default async function Home({ searchParams }: { searchParams?: Promise<{ code?: string; next?: string }> }) {
   const params = searchParams ? await searchParams : {}
 
-  // Some Supabase email templates redirect to the Site URL before the app callback.
-  // Never render the public homepage with an auth code; hand it to the secure callback.
   if (params.code) {
     const next = params.next === '/admin' ? '/admin' : '/admin'
     redirect(`/auth/callback?code=${encodeURIComponent(params.code)}&next=${encodeURIComponent(next)}`)
   }
 
   const supabase = supabaseServer()
-  const { data: products } = await supabase
-    .from('products').select('*').eq('published', true)
-    .order('featured', { ascending: false }).order('created_at', { ascending: false }).limit(8)
+  const [{ data: products }, { data: categories }] = await Promise.all([
+    supabase
+      .from('products').select('*').eq('published', true)
+      .order('featured', { ascending: false }).order('created_at', { ascending: false }).limit(8),
+    supabase.from('categories').select('*').order('name'),
+  ])
 
   return (
     <main>
       <div className="container">
         <Header />
 
-        <div className="categoryBar">
+        <div className="categoryBar" aria-label="Product categories">
           <Link className="categoryActive" href="/products">All</Link>
-          {categories.map((category) => <Link key={category} href={`/products?category=${category.toLowerCase()}`}>{category}</Link>)}
+          {(categories || []).map((category: any) => (
+            <Link key={category.id} href={`/products?category=${encodeURIComponent(category.id)}`}>{category.name}</Link>
+          ))}
         </div>
 
         <section className="homeHero">
@@ -46,7 +47,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           </div>
         </section>
 
-        <section className="quickStrip">
+        <section className="quickStrip" aria-label="How AYUSHPICKS works">
           <div><Search size={20}/><b>Discover</b><span>Find products worth considering</span></div>
           <div><BadgeCheck size={20}/><b>Compare</b><span>Pros, cons & useful details</span></div>
           <div><Zap size={20}/><b>Decide</b><span>Then shop from the store</span></div>
@@ -54,7 +55,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
 
         <section className="section picksSection">
           <div className="sectionhead"><div><span className="sectionKicker">JUST IN</span><h2>Latest picks</h2><div className="muted small">A small list of products we think deserve your attention.</div></div><Link className="viewAll" href="/products">View all <ChevronRight size={16}/></Link></div>
-          {products?.length ? <div className="grid productgrid">{products.map((p) => <ProductCard key={p.id} product={p}/>)}</div> : <div className="empty">Our first picks are being prepared. Check back soon.</div>}
+          {products?.length ? <div className="grid productgrid">{products.map((p: any) => <ProductCard key={p.id} product={p}/>)}</div> : <div className="empty">Our first picks are being prepared. Check back soon.</div>}
         </section>
 
         <section className="guideBanner"><div><span className="sectionKicker">BUYING GUIDES</span><h2>Don’t just buy.<br/>Know what you’re buying.</h2><p>Simple guides for choosing products without getting lost in hundreds of listings.</p></div><Link className="btn primary" href="/guides">Explore guides <ArrowRight size={16}/></Link></section>
