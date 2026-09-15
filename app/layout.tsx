@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   creator: 'AYUSHPICKS',
   keywords: ['product discovery','product recommendations','buying guides','best products','Amazon India'],
   robots: { index: true, follow: true },
+  other: {
+    'google-adsense-account': 'ca-pub-1101292617046429',
+  },
   openGraph: { title: 'AYUSHPICKS — Products worth picking', description: 'Useful products, practical details and buying guides.', url: SITE_URL, siteName: 'AYUSHPICKS', type: 'website' },
 }
 
