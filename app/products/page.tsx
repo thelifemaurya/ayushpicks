@@ -26,7 +26,7 @@ export default async function Products({ searchParams }: { searchParams?: Promis
 
       <section className="toolbar">
         <form className="searchbox" action="/products">
-          <input name="q" defaultValue={q} placeholder="Search products…" aria-label="Search products" />
+          <input name="q" defaultValue={q} placeholder="Search products, brands & categories…" aria-label="Search products" />
           <button className="btn primary">Search</button>
         </form>
         <ProductFilters categories={categories || []} />
@@ -34,7 +34,7 @@ export default async function Products({ searchParams }: { searchParams?: Promis
 
       {products?.length ? (
         <section className="grid productgrid">
-          {products.map((p: any) => <ProductCard key={p.id} product={p} compact />)}
+          {products.map((p: any) => <ProductCard key={p.id} product={p} />)}
         </section>
       ) : (
         <div className="empty">
