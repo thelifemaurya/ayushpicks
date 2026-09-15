@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { Search } from 'lucide-react'
 
-const LOGO_URL = 'https://raw.githubusercontent.com/thelifemaurya/ayushpicks/main/ayushpicks-logo.png'
-
 type Product = {
   id: string
   name: string
@@ -15,11 +13,24 @@ type Product = {
   featured?: boolean | null
 }
 
+function BrandMark() {
+  return (
+    <span className="brandMark" aria-hidden="true">
+      <svg className="brandIcon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 3.5 35.5 12v16L20 36.5 4.5 28V12L20 3.5Z" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round"/>
+        <path d="m11.5 27 5.7-14h5.6l5.7 14M14 22.2h12" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="m25.8 16.4 2.1 2.1 4-4" stroke="#dc2626" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      <span className="brandWord"><strong>AYUSH</strong><span>PICKS</span></span>
+    </span>
+  )
+}
+
 export function Header() {
   return (
     <header className="nav">
       <Link className="brand" href="/" aria-label="AYUSHPICKS home">
-        <img className="brandLogo" src={LOGO_URL} alt="AYUSHPICKS" width={150} height={42} style={{ display: 'block', width: 150, height: 42, objectFit: 'contain', objectPosition: 'left center' }} />
+        <BrandMark />
       </Link>
       <form className="navSearch" action="/products" role="search">
         <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
@@ -31,7 +42,7 @@ export function Header() {
 }
 
 export function Footer() {
-  return <footer className="sitefooter"><div className="footergrid"><div><Link className="brand" href="/"><img className="brandLogo" src={LOGO_URL} alt="AYUSHPICKS" width={150} height={42} style={{ display: 'block', width: 150, height: 42, objectFit: 'contain', objectPosition: 'left center' }} /></Link><p className="muted small">Useful products. Better decisions.</p></div><div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Products</Link><Link href="/guides">Guides</Link></div><div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div><div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div></div><div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div></footer>
+  return <footer className="sitefooter"><div className="footergrid"><div><Link className="brand" href="/"><BrandMark /></Link><p className="muted small">Useful products. Better decisions.</p></div><div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Products</Link><Link href="/guides">Guides</Link></div><div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div><div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div></div><div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div></footer>
 }
 
 export function ProductCard({ product }: { product: Product }) {
