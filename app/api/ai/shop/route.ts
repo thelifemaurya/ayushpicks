@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { clientKey, rateLimit } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ayebyukjekhpdxcdulbg.supabase.co'
@@ -15,6 +16,8 @@ async function catalog(message:string):Promise<Product[]>{
 }
 export async function POST(req:NextRequest){
  try{
+  const rl=rateLimit(clientKey(req,'shop-assistant'),15,10*60*1000)
+  if(!rl.allowed)return NextResponse.json({error:'Too many requests. Please try again later.'},{status:429,headers:{'Retry-After':String(Math.ceil((rl.resetAt-Date.now())/1000))}})
   const key=process.env.GEMINI_API_KEY;if(!key)return NextResponse.json({error:'Assistant is not configured yet.'},{status:503})
   const b=await req.json(), message=String(b?.message||'').trim();if(!message)return NextResponse.json({error:'Message is required.'},{status:400});if(message.length>1200)return NextResponse.json({error:'Message is too long.'},{status:400})
   const products=await catalog(message), data=products.map(p=>({id:p.id,name:p.name,slug:p.slug,image_url:p.image_url,price:p.price,old_price:p.old_price,currency:p.currency,short_description:p.short_description,why_picked:p.why_picked,pros:p.pros,cons:p.cons,rating:p.rating,tags:p.tags,featured:p.featured}))
@@ -28,6 +31,6 @@ Return ONLY JSON: {"reply":"...","productIds":["id"],"action":"none|discover|gui
   const raw=j?.candidates?.[0]?.content?.parts?.map((x:any)=>x.text||'').join('').trim();if(!raw)return NextResponse.json({error:'No response received.'},{status:502})
   let out:any;try{out=JSON.parse(raw)}catch{out={reply:raw,productIds:[],action:'none'}}
   const ids=new Set(products.map(p=>p.id)), selected=Array.isArray(out.productIds)?out.productIds.filter((id:string)=>ids.has(id)).slice(0,4):[]
-  return NextResponse.json({text:String(out.reply||'I could not find a useful match yet.'),products:products.filter(p=>selected.includes(p.id)),action:['discover','guides'].includes(out.action)?out.action:'none'})
+  return NextResponse.json({text:String(out.reply||'I could not find a useful match yet.'),products:products.filter(p=>selected.includes(p.id)),action:['discover','guides'].includes(out.action)?out.action:'none'},{headers:{'Cache-Control':'no-store'}})
  }catch(e){console.error(e);return NextResponse.json({error:'Assistant is temporarily unavailable.'},{status:500})}
 }
