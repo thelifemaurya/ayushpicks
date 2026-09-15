@@ -16,7 +16,20 @@ export const metadata: Metadata = {
   other: {
     'google-adsense-account': 'ca-pub-1101292617046429',
   },
-  openGraph: { title: 'AYUSHPICKS — Products worth picking', description: 'Useful products, practical details and buying guides.', url: SITE_URL, siteName: 'AYUSHPICKS', type: 'website' },
+  openGraph: {
+    title: 'AYUSHPICKS — Products worth picking',
+    description: 'Useful products, practical details and buying guides.',
+    url: SITE_URL,
+    siteName: 'AYUSHPICKS',
+    type: 'website',
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'AYUSHPICKS — Products worth picking' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AYUSHPICKS — Products worth picking',
+    description: 'Useful products, practical details and buying guides.',
+    images: ['/opengraph-image'],
+  },
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
