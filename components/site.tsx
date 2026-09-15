@@ -15,19 +15,27 @@ type Product = {
 
 export function Header() {
   return (
-    <header className="nav">
-      <Link className="brand" href="/" aria-label="AYUSHPICKS home">AYUSH<span>PICKS</span></Link>
-      <form className="navSearch" action="/products" role="search">
-        <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
-      </form>
-      <nav className="navlinks" aria-label="Primary navigation"><Link href="/">Home</Link><Link href="/products">Discover</Link><Link href="/guides">Guides</Link><Link href="/about">About</Link></nav>
-      <div className="navActions"><Link className="btn navExplore" href="/products">Explore</Link></div>
-    </header>
+    <>
+      <header className="nav">
+        <Link className="brand" href="/" aria-label="AYUSHPICKS home">
+          <img className="brandLogo" src="/ayushpicks-logo-transparent.png" alt="AYUSHPICKS" />
+        </Link>
+        <form className="navSearch" action="/products" role="search">
+          <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
+        </form>
+        <nav className="navlinks" aria-label="Primary navigation"><Link href="/">Home</Link><Link href="/products">Discover</Link><Link href="/guides">Guides</Link><Link href="/about">About</Link></nav>
+        <div className="navActions"><Link className="btn navExplore" href="/products">Explore</Link></div>
+      </header>
+      <style jsx global>{`
+        .brandLogo{display:block;width:132px;height:38px;object-fit:contain;object-position:left center}
+        @media(max-width:650px){.brandLogo{width:116px;height:34px}}
+      `}</style>
+    </>
   )
 }
 
 export function Footer() {
-  return <footer className="sitefooter"><div className="footergrid"><div><Link className="brand" href="/">AYUSH<span>PICKS</span></Link><p className="muted small">Useful products. Better decisions.</p></div><div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Products</Link><Link href="/guides">Guides</Link></div><div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div><div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div></div><div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div></footer>
+  return <footer className="sitefooter"><div className="footergrid"><div><Link className="brand" href="/"><img className="brandLogo" src="/ayushpicks-logo-transparent.png" alt="AYUSHPICKS" /></Link><p className="muted small">Useful products. Better decisions.</p></div><div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Products</Link><Link href="/guides">Guides</Link></div><div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div><div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div></div><div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div></footer>
 }
 
 export function ProductCard({ product }: { product: Product }) {
