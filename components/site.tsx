@@ -13,25 +13,14 @@ type Product = {
   featured?: boolean | null
 }
 
-function BrandMark() {
-  return (
-    <span className="brandMark" aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--text)', lineHeight: 1 }}>
-      <svg className="brandIcon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 29, height: 29, flex: '0 0 29px', display: 'block' }}>
-        <path d="M20 3.5 35.5 12v16L20 36.5 4.5 28V12L20 3.5Z" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round"/>
-        <path d="m11.5 27 5.7-14h5.6l5.7 14M14 22.2h12" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="m25.8 16.4 2.1 2.1 4-4" stroke="#dc2626" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-      <span className="brandWord" style={{ color: 'var(--text)', fontFamily: 'Manrope, system-ui, sans-serif', fontWeight: 800, fontSize: 21, letterSpacing: '-0.055em', whiteSpace: 'nowrap' }}><strong style={{ color: 'var(--text)', fontWeight: 800 }}>AYUSH</strong><span style={{ color: 'var(--accent)', fontWeight: 800 }}>PICKS</span></span>
-    </span>
-  )
+function BrandText() {
+  return <span aria-hidden="true" style={{ fontFamily: 'Manrope, system-ui, sans-serif', fontWeight: 800, fontSize: 21, letterSpacing: '-0.06em', whiteSpace: 'nowrap', lineHeight: 1 }}><span style={{ color: 'var(--text)' }}>AYUSH</span><span style={{ color: 'var(--accent)' }}>PICKS</span></span>
 }
 
 export function Header() {
   return (
     <header className="nav">
-      <Link className="brand" href="/" aria-label="AYUSHPICKS home">
-        <BrandMark />
-      </Link>
+      <Link className="brand" href="/" aria-label="AYUSHPICKS home"><BrandText /></Link>
       <form className="navSearch" action="/products" role="search">
         <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
       </form>
@@ -42,7 +31,7 @@ export function Header() {
 }
 
 export function Footer() {
-  return <footer className="sitefooter"><div className="footergrid"><div><Link className="brand" href="/"><BrandMark /></Link><p className="muted small">Useful products. Better decisions.</p></div><div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Products</Link><Link href="/guides">Guides</Link></div><div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div><div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div></div><div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div></footer>
+  return <footer className="sitefooter"><div className="footergrid"><div><Link className="brand" href="/"><BrandText /></Link><p className="muted small">Useful products. Better decisions.</p></div><div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Products</Link><Link href="/guides">Guides</Link></div><div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div><div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div></div><div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div></footer>
 }
 
 export function ProductCard({ product }: { product: Product }) {
