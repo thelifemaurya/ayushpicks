@@ -22,7 +22,7 @@ export function Header() {
         <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
       </form>
       <nav className="navlinks" aria-label="Primary navigation"><Link href="/">Home</Link><Link href="/products">Discover</Link><Link href="/guides">Guides</Link><Link href="/about">About</Link></nav>
-      <div className="navActions"><Link className="mobileSearch" href="/products" aria-label="Search products"><Search size={18}/></Link><ThemeToggle/><Link className="btn navExplore" href="/products">Explore</Link></div>
+      <div className="navActions"><ThemeToggle/><Link className="btn navExplore" href="/products">Explore</Link></div>
     </header>
   )
 }
