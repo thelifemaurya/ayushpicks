@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { clientKey, rateLimit } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
 
@@ -14,6 +15,11 @@ The assistant should help visitors navigate these pages, explain what sections d
 
 export async function POST(request: NextRequest) {
   try {
+    const rl = rateLimit(clientKey(request, 'site-assistant'), 15, 10 * 60 * 1000)
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } })
+    }
+
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) return NextResponse.json({ error: 'Assistant is not configured yet.' }, { status: 503 })
 
@@ -59,7 +65,7 @@ Current visitor page: ${pathname}`
 
     const text = data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('').trim()
     if (!text) return NextResponse.json({ error: 'No response received. Please try again.' }, { status: 502 })
-    return NextResponse.json({ text })
+    return NextResponse.json({ text }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     console.error('Site assistant error', error)
     return NextResponse.json({ error: 'Assistant is temporarily unavailable.' }, { status: 500 })
