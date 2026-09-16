@@ -21,18 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: product.name,
     description: product.short_description || 'A practical product pick from AYUSHPICKS.',
-    openGraph: {
-      title: `${product.name} | AYUSHPICKS`,
-      description: product.short_description || 'A practical product pick from AYUSHPICKS.',
-      url: `${SITE_URL}/products/${product.slug}`,
-      images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'AYUSHPICKS — Products worth picking' }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${product.name} | AYUSHPICKS`,
-      description: product.short_description || 'A practical product pick from AYUSHPICKS.',
-      images: ['/opengraph-image'],
-    },
+    openGraph: { title: `${product.name} | AYUSHPICKS`, description: product.short_description || 'A practical product pick from AYUSHPICKS.', url: `${SITE_URL}/products/${product.slug}`, images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'AYUSHPICKS — Products worth picking' }] },
+    twitter: { card: 'summary_large_image', title: `${product.name} | AYUSHPICKS`, description: product.short_description || 'A practical product pick from AYUSHPICKS.', images: ['/opengraph-image'] },
   }
 }
 
@@ -40,10 +30,15 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
   const { slug } = await params
   const product = await getProduct(slug)
   if (!product) notFound()
+  const hasPros = Array.isArray(product.pros) && product.pros.length > 0
+  const hasCons = Array.isArray(product.cons) && product.cons.length > 0
+  const hasEditorial = Boolean(product.why_picked) || hasPros || hasCons
 
   return <PageShell title={product.name} kicker={product.store || 'PRODUCT PICK'}>
     <Link href="/products" className="backhome">← Back to picks</Link>
-    <section className="detail"><div className="detailmedia"><div className="detailimage">{product.image_url?<img src={product.image_url} alt={product.name} referrerPolicy="no-referrer"/>:<span>No image available</span>}</div></div><div className="detailinfo"><div className="tag">{product.store || 'Store'}</div>{product.price!=null&&<div className="detailprice">₹{Number(product.price).toLocaleString('en-IN')}{product.old_price!=null&&<del>₹{Number(product.old_price).toLocaleString('en-IN')}</del>}</div>}<p className="lead">{product.short_description || 'A product selected for its practical value, features and overall usefulness.'}</p>{product.why_picked&&<div className="editorial"><div className="eyebrow">WHY WE PICKED IT</div><p>{product.why_picked}</p></div>}<Link className="btn primary buy" href={`/go/${product.slug}`}>Check on {product.store || 'store'} <ArrowUpRight size={17}/></Link><p className="muted micro">Prices and availability can change on the retailer’s website.</p></div></section>
-    <section className="detailgrid">{Array.isArray(product.pros)&&product.pros.length>0&&<div className="infoPanel"><h2>Pros</h2>{product.pros.map((x:string,i:number)=><div className="bullet" key={i}><Check size={16}/><span>{x}</span></div>)}</div>}{Array.isArray(product.cons)&&product.cons.length>0&&<div className="infoPanel"><h2>Things to consider</h2>{product.cons.map((x:string,i:number)=><div className="bullet" key={i}><X size={16}/><span>{x}</span></div>)}</div>}</section>
+    <section className="detail"><div className="detailmedia"><div className="detailimage">{product.image_url ? <img src={product.image_url} alt={product.name} referrerPolicy="no-referrer"/> : <span>No image available</span>}</div></div><div className="detailinfo"><div className="tag">{product.store || 'Store'}</div>{product.price != null && <div className="detailprice">₹{Number(product.price).toLocaleString('en-IN')}{product.old_price != null && <del>₹{Number(product.old_price).toLocaleString('en-IN')}</del>}</div>}<p className="lead">{product.short_description || 'A product selected for its practical value, features and overall usefulness.'}</p>{product.why_picked && <div className="editorial"><div className="eyebrow">WHY WE PICKED IT</div><p>{product.why_picked}</p></div>}<Link className="btn primary buy" href={`/go/${product.slug}`}>Check on {product.store || 'store'} <ArrowUpRight size={17}/></Link><p className="muted micro">Prices and availability can change on the retailer’s website.</p></div></section>
+    {hasEditorial && <section className="copySection"><div className="eyebrow">BEFORE YOU BUY</div><h2>Look at the trade-offs, not just the price.</h2><p>There is no single product that is right for everyone. Use the details below alongside your own requirements, then verify the current retailer listing before purchasing.</p></section>}
+    <section className="detailgrid">{hasPros && <div className="infoPanel"><h2>Pros</h2>{product.pros.map((x: string, i: number) => <div className="bullet" key={i}><Check size={16}/><span>{x}</span></div>)}</div>}{hasCons && <div className="infoPanel"><h2>Things to consider</h2>{product.cons.map((x: string, i: number) => <div className="bullet" key={i}><X size={16}/><span>{x}</span></div>)}</div>}</section>
+    <section className="copySection"><div className="eyebrow">HOW TO USE THIS PICK</div><h2>Make the final decision for your needs.</h2><p>AYUSHPICKS provides product discovery and editorial context; it does not process the purchase. Check the retailer’s current price, availability, seller information, warranty and return terms before completing an order.</p><p className="muted small">Some retailer links may be affiliate links. See our <Link href="/affiliate-disclosure" className="textlink">affiliate disclosure</Link> for details.</p></section>
   </PageShell>
 }
