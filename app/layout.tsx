@@ -3,6 +3,7 @@ import './globals.css'
 import { SITE_URL } from '@/lib/config'
 import AssistantWidget from '@/components/assistant-widget'
 import AdSenseScript from '@/components/adsense-script'
+import IntroSplash from '@/components/intro-splash'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -14,9 +15,7 @@ export const metadata: Metadata = {
   creator: 'KSNATIC',
   keywords: ['product discovery','product recommendations','buying guides','best products','Amazon India'],
   robots: { index: true, follow: true },
-  other: {
-    'google-adsense-account': 'ca-pub-1101292617046429',
-  },
+  other: { 'google-adsense-account': 'ca-pub-1101292617046429' },
   openGraph: {
     title: 'KSNATIC — Discover better. Decide smarter.',
     description: 'Useful products, practical details and buying guides.',
@@ -34,5 +33,5 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" className="light"><body>{children}<AdSenseScript /><AssistantWidget /></body></html>
+  return <html lang="en" className="light"><body><IntroSplash />{children}<AdSenseScript /><AssistantWidget /></body></html>
 }
