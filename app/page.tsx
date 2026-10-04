@@ -44,7 +44,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           </div>
           <div className="heroVisual" style={{ minHeight: 280 }}>
             <div className="floatingCard cardA"><span className="miniIcon">★</span><div><b>Better decisions</b><small>Less endless scrolling</small></div></div>
-            <div className="visualOrb" style={{ width: 175, height: 175 }}><span style={{ fontFamily: 'Manrope, system-ui, sans-serif', fontWeight: 800, fontSize: 27, letterSpacing: '-0.065em' }}><span style={{ color: 'var(--text)' }}>AYUSH</span><span style={{ color: 'var(--accent)' }}>PICKS</span></span></div>
+            <div className="visualOrb" style={{ width: 175, height: 175 }}><span className="heroBrandMark">KSNATIC</span></div>
             <div className="floatingCard cardB"><small>Our focus</small><strong>Details that actually matter.</strong></div>
           </div>
         </section>
