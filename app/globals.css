@@ -193,3 +193,69 @@ img{max-width:100%;height:auto}
 @media(prefers-reduced-motion:reduce){
   .card,.productImage img,.categoryTile,.btn{transition:none!important}
 }
+
+/* KSNATIC V4 — conversion, comparison and editorial detail polish */
+.affiliateDisclosure{margin:46px 0 12px;padding:18px 20px;border:1px solid var(--line);border-radius:16px;background:var(--panel);display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-items:start}
+.affiliateDisclosure strong{font-size:11px;text-transform:uppercase;letter-spacing:.1em}
+.affiliateDisclosure p{grid-column:2;margin:2px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
+.affiliateDisclosure.compact{margin:18px 0;padding:14px 16px}
+.productScoreHero{display:inline-flex;align-items:baseline;gap:8px;margin:12px 0 2px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+.productScoreHero strong{font:800 22px/1 Manrope;letter-spacing:-.04em}
+.productScoreHero span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.negativeBullet svg{color:#ef6b73}
+.audienceGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0 0}
+.specSection{margin:46px 0 0}
+.specSection h2{font:800 30px/1 Manrope;letter-spacing:-.045em;margin:9px 0 16px}
+.specTable{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel)}
+.specRow{display:grid;grid-template-columns:minmax(140px,.7fr) 1.3fr;gap:18px;padding:13px 16px;border-top:1px solid var(--line);font-size:12px}
+.specRow:first-child{border-top:0}
+.specRow span{color:var(--muted);text-transform:capitalize}
+.specRow strong{font-weight:700;overflow-wrap:anywhere}
+.compareIntro{display:flex;justify-content:space-between;align-items:end;gap:20px;padding:4px 0 28px}
+.compareIntro .lead{max-width:700px}
+.compareProducts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.compareProduct{display:grid;grid-template-columns:150px 1fr;gap:18px;padding:18px;border:1px solid var(--line);border-radius:20px;background:var(--panel);min-width:0}
+.compareThumb{position:relative;min-height:150px;border-radius:14px;background:var(--panel2);display:grid;place-items:center;overflow:hidden}
+.compareThumb span{font:800 22px Manrope;letter-spacing:-.06em}
+.compareProductInfo{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.compareProductInfo h2{font:800 22px/1.08 Manrope;letter-spacing:-.045em;margin:9px 0 12px}
+.compareScore{display:flex;align-items:baseline;gap:6px}
+.compareScore strong{font:800 18px Manrope}
+.compareScore span{font-size:9px;color:var(--muted);text-transform:uppercase}
+.comparePrice{font-size:15px;margin:9px 0 13px}
+.compareMatrix{margin-top:34px;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--panel)}
+.compareMatrixHead{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:10px}
+.compareMatrixHead span{font-size:9px;color:var(--accent);font-weight:800;letter-spacing:.12em}
+.compareMatrixHead strong{font:700 19px Manrope;letter-spacing:-.03em}
+.compareRow{display:grid;grid-template-columns:minmax(150px,1fr) minmax(150px,1fr) minmax(150px,1fr);gap:1px;background:var(--line)}
+.compareRow>*{padding:13px 15px;background:var(--panel);font-size:12px}
+.compareRow span{text-transform:capitalize;color:var(--muted)}
+.compareRowHead>*{font-weight:800;color:var(--text)}
+.compareTradeoffs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.compareTradeoff{padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--panel)}
+.compareTradeoff h2{font:700 18px Manrope;letter-spacing:-.03em;margin:0 0 14px}
+.tradeoffList{display:grid;gap:9px}
+.tradeoffList div{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5}
+.tradeoffList svg{color:var(--good);flex:none;margin-top:2px}
+.tradeoffList .negative svg{color:#ef6b73}
+.compareVerdict{margin:34px 0 0;padding:25px;border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line));border-radius:20px;background:linear-gradient(135deg,var(--panel),color-mix(in srgb,var(--accent) 7%,var(--panel)));display:grid;grid-template-columns:auto 1fr;gap:15px}
+.verdictIcon{width:42px;height:42px;border-radius:13px;background:var(--text);color:var(--bg);display:grid;place-items:center}
+.compareVerdict h2{font:800 28px/1.05 Manrope;letter-spacing:-.05em;margin:8px 0 9px}
+.compareVerdict p{margin:0;color:var(--muted);font-size:12px;line-height:1.7;max-width:760px}
+@media(max-width:700px){
+  .affiliateDisclosure{grid-template-columns:1fr;gap:7px;padding:16px}
+  .affiliateDisclosure p{grid-column:auto;margin:0}
+  .audienceGrid,.compareProducts,.compareTradeoffs{grid-template-columns:1fr}
+  .compareIntro{display:block}
+  .compareIntro .textlink{margin-top:12px}
+  .compareProduct{grid-template-columns:100px 1fr;padding:12px;gap:12px}
+  .compareThumb{min-height:110px}
+  .compareProductInfo h2{font-size:17px}
+  .comparePrice{margin:7px 0 10px}
+  .compareProductInfo .btn{min-height:40px;padding:9px 12px;font-size:11px}
+  .compareMatrix{overflow-x:auto}
+  .compareMatrixHead,.compareRow{min-width:560px}
+  .compareVerdict{grid-template-columns:1fr;padding:20px}
+  .compareVerdict h2{font-size:24px}
+  .specRow{grid-template-columns:1fr;gap:5px}
+}
