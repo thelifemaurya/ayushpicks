@@ -12,7 +12,8 @@ export const revalidate = 60
 
 async function getProducts(slugs: string[]) {
   const { data } = await supabaseServer().from('products').select('*').in('slug', slugs).eq('published', true)
-  return data || []
+  const rows = data || []
+  return slugs.map((slug) => rows.find((product: any) => product.slug === slug)).filter(Boolean)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
