@@ -1,22 +1,23 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 const letters = 'KSNATIC'.split('')
 
 export default function IntroSplash() {
-  const [visible, setVisible] = useState(true)
+  const [visible, setVisible] = useState(false)
   const [leaving, setLeaving] = useState(false)
 
   useEffect(() => {
-    // The intro is intentionally shown on every fresh page load.
-    // Do not gate it with sessionStorage: the brand reveal is part of the site experience.
-    const moveTimer = window.setTimeout(() => setLeaving(true), 2050)
-    const doneTimer = window.setTimeout(() => setVisible(false), 3000)
+    const key = 'ksnatic-intro-seen'
+    if (sessionStorage.getItem(key)) return
+    sessionStorage.setItem(key, '1')
+    setVisible(true)
 
+    const exitTimer = window.setTimeout(() => setLeaving(true), 2150)
+    const doneTimer = window.setTimeout(() => setVisible(false), 3050)
     return () => {
-      window.clearTimeout(moveTimer)
+      window.clearTimeout(exitTimer)
       window.clearTimeout(doneTimer)
     }
   }, [])
@@ -27,130 +28,22 @@ export default function IntroSplash() {
     <div className={`introSplash ${leaving ? 'isLeaving' : ''}`} aria-hidden="true">
       <div className="introWord">
         {letters.map((letter, index) => (
-          <span key={letter} style={{ '--i': index } as React.CSSProperties}>
-            {letter}
-          </span>
+          <span key={letter} style={{ '--i': index } as React.CSSProperties}>{letter}</span>
         ))}
       </div>
-
-      <Image
-        className="introLogo"
-        src="/ksnatic-logo.png"
-        alt=""
-        width={220}
-        height={64}
-        priority
-      />
-
       <style jsx global>{`
-        .introSplash{
-          position:fixed;
-          inset:0;
-          z-index:99999;
-          background:#fff;
-          color:#090a0c;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          overflow:hidden;
-          pointer-events:none;
-        }
-
-        .introWord{
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          font:900 clamp(50px,9vw,96px)/.9 Manrope,system-ui,sans-serif;
-          letter-spacing:-.09em;
-          position:relative;
-          z-index:2;
-        }
-
-        .introWord span{
-          display:inline-block;
-          opacity:0;
-          transform:translateX(52px) scale(.72);
-          filter:blur(9px);
-          animation:introPop .48s cubic-bezier(.16,1,.3,1) forwards;
-          animation-delay:calc((6 - var(--i)) * .105s + .08s);
-          will-change:transform,opacity,filter;
-        }
-
-        .introWord span:nth-child(odd){
-          text-shadow:3px 0 #ff4b75,-3px 0 #637cff;
-        }
-
-        .introWord span:nth-child(even){
-          text-shadow:-3px 0 #8a5cff,3px 0 #00b8ff;
-        }
-
-        .introSplash.isLeaving .introWord{
-          animation:introWordOut .55s cubic-bezier(.7,0,.2,1) forwards;
-        }
-
-        .introSplash.isLeaving .introWord span{
-          animation:none;
-          opacity:1;
-          transform:none;
-          filter:none;
-        }
-
-        .introLogo{
-          position:absolute;
-          top:17px;
-          left:17px;
-          width:min(210px,34vw);
-          height:auto;
-          object-fit:contain;
-          opacity:0;
-          z-index:3;
-          transform:translate(50vw,42vh) scale(2.35);
-          transform-origin:top left;
-          will-change:transform,opacity;
-        }
-
-        .introSplash.isLeaving .introLogo{
-          animation:introLogoToCorner .78s cubic-bezier(.7,0,.2,1) forwards;
-        }
-
-        .introSplash.isLeaving{
-          animation:introCurtain .78s cubic-bezier(.7,0,.2,1) .08s forwards;
-        }
-
-        @keyframes introPop{
-          0%{opacity:0;transform:translateX(52px) scale(.72);filter:blur(9px)}
-          35%{opacity:1;transform:translateX(-7px) scale(1.08);filter:blur(0)}
-          55%{transform:translateX(4px) scale(.98)}
-          72%{transform:translateX(-2px)}
-          100%{opacity:1;transform:translateX(0) scale(1);filter:blur(0)}
-        }
-
-        @keyframes introWordOut{
-          0%{opacity:1;transform:scale(1)}
-          100%{opacity:0;transform:scale(.9);filter:blur(7px)}
-        }
-
-        @keyframes introLogoToCorner{
-          0%{opacity:0;transform:translate(50vw,42vh) scale(2.35)}
-          32%{opacity:1;transform:translate(34vw,25vh) scale(1.8)}
-          68%{opacity:1;transform:translate(12vw,6vh) scale(1.18)}
-          100%{opacity:1;transform:translate(0,0) scale(1)}
-        }
-
-        @keyframes introCurtain{
-          0%{background:#fff;opacity:1}
-          70%{background:#fff;opacity:1}
-          100%{background:transparent;opacity:0;visibility:hidden}
-        }
-
-        @media(max-width:650px){
-          .introWord{font-size:clamp(43px,13vw,70px)}
-          .introLogo{width:min(165px,42vw);top:14px;left:14px}
-        }
-
-        @media(prefers-reduced-motion:reduce){
-          .introSplash{display:none!important}
-        }
+        .introSplash{position:fixed;inset:0;z-index:99999;background:#fff;color:#000;display:grid;place-items:center;overflow:hidden;pointer-events:none}
+        .introWord{display:flex;align-items:center;justify-content:center;font-family:'Kaensla',Georgia,serif;font-weight:400;font-size:clamp(62px,10vw,118px);line-height:.8;letter-spacing:-.075em;color:#000}
+        .introWord span{display:inline-block;opacity:0;transform:translateX(90px) translateY(8px) scale(.94);filter:blur(5px);animation:introLetter .52s cubic-bezier(.22,1,.36,1) forwards;animation-delay:calc((6 - var(--i)) * .12s + .08s);will-change:transform,opacity,filter}
+        .introWord span:nth-child(1){animation-delay:.80s}.introWord span:nth-child(2){animation-delay:.68s}.introWord span:nth-child(3){animation-delay:.56s}.introWord span:nth-child(4){animation-delay:.44s}.introWord span:nth-child(5){animation-delay:.32s}.introWord span:nth-child(6){animation-delay:.20s}.introWord span:nth-child(7){animation-delay:.08s}
+        .introSplash.isLeaving .introWord{animation:introToCorner .86s cubic-bezier(.76,0,.16,1) forwards}
+        .introSplash.isLeaving .introWord span{animation:none;opacity:1;filter:none;transform:none}
+        .introSplash.isLeaving{animation:introFade .86s cubic-bezier(.76,0,.16,1) forwards}
+        @keyframes introLetter{0%{opacity:0;transform:translateX(90px) translateY(8px) scale(.94);filter:blur(5px)}45%{opacity:1;transform:translateX(-5px) translateY(0) scale(1.015);filter:blur(0)}72%{transform:translateX(2px) scale(.998)}100%{opacity:1;transform:translateX(0) translateY(0) scale(1);filter:blur(0)}}
+        @keyframes introToCorner{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(calc(-50vw + 48px),calc(-50vh + 38px)) scale(.34);transform-origin:center;opacity:0}}
+        @keyframes introFade{0%{opacity:1;background:#fff}75%{opacity:1;background:#fff}100%{opacity:0;background:transparent;visibility:hidden}}
+        @media(max-width:650px){.introWord{font-size:clamp(48px,15vw,78px)}}
+        @media(prefers-reduced-motion:reduce){.introSplash{display:none!important}}
       `}</style>
     </div>
   )
