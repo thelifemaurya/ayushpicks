@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, BadgeCheck, ChevronRight, Search, Sparkles, Star, Zap } from 'lucide-react'
+import { ArrowRight, BadgeCheck, ChevronRight, Search, ShieldCheck, Sparkles, Star, Zap } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { supabaseServer } from '@/lib/supabase-server'
 import { Header, Footer, ProductCard } from '@/components/site'
@@ -14,14 +14,10 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
     supabase.from('categories').select('*').order('name'),
   ])
 
+  const productList = products || []
   const categoryList = categories || []
-  const beauty = categoryList.find((c: any) => /beauty/i.test(c.name))
-  const clothing = categoryList.find((c: any) => /cloth|fashion|apparel/i.test(c.name))
-  const priorityCategories = [beauty, clothing].filter(Boolean)
-  const otherCategories = categoryList.filter((c: any) => !priorityCategories.some((p: any) => p.id === c.id))
-
-  const categoryProducts = async (categoryId?: string) => categoryId ? (await supabase.from('products').select('*').eq('published', true).eq('category_id', categoryId).order('featured', { ascending: false }).order('created_at', { ascending: false }).limit(8)).data || [] : []
-  const [beautyProducts, clothingProducts] = await Promise.all([categoryProducts(beauty?.id), categoryProducts(clothing?.id)])
+  const featuredProduct = productList[0]
+  const featuredCategories = categoryList.slice(0, 6)
 
   return (
     <main>
@@ -29,44 +25,95 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
         <Header />
 
         <div className="categoryBar" aria-label="Product categories">
-          <Link className="categoryActive" href="/products">All</Link>
-          {priorityCategories.map((category: any) => <Link key={category.id} href={`/products?category=${encodeURIComponent(category.id)}`}>{category.name}</Link>)}
-          {otherCategories.map((category: any) => <Link key={category.id} href={`/products?category=${encodeURIComponent(category.id)}`}>{category.name}</Link>)}
+          <Link className="categoryActive" href="/products">All picks</Link>
+          {categoryList.map((category: any) => (
+            <Link key={category.id} href={`/products?category=${encodeURIComponent(category.id)}`}>{category.name}</Link>
+          ))}
         </div>
 
-        <section className="homeHero" style={{ minHeight: 365, paddingTop: 38, paddingBottom: 34 }}>
+        <section className="homeHero ksnaticHero">
           <div className="heroCopy">
-            <div className="eyebrow"><Sparkles size={13}/> KSNATIC · PRODUCT DISCOVERY</div>
-            <h1 style={{ fontSize: 'clamp(46px, 6vw, 70px)' }}>Discover better.<br/><span>Decide smarter.</span></h1>
-            <p>KSNATIC helps you discover, understand, compare, and choose products worth considering — with practical details instead of endless scrolling.</p>
-            <div className="heroActions"><Link className="btn primary big" href="/products">Explore picks <ArrowRight size={17}/></Link><Link className="textlink" href="/guides">Read our guides <ChevronRight size={15}/></Link></div>
-            <div className="heroTrust"><span><BadgeCheck size={16}/> Hand-picked</span><span><Zap size={16}/> Useful details</span><span><Star size={15}/> Honest pros & cons</span></div>
+            <div className="eyebrow"><Sparkles size={13}/> INDEPENDENT PRODUCT DISCOVERY</div>
+            <h1>Find what’s worth it.<br/><span>Skip the noise.</span></h1>
+            <p>KSNATIC helps you discover, understand, compare, and choose products before you buy — with useful details, honest context, and clear recommendations.</p>
+            <div className="heroActions">
+              <Link className="btn primary big" href="/products">Explore picks <ArrowRight size={17}/></Link>
+              <Link className="textlink" href="/guides">How we choose <ChevronRight size={15}/></Link>
+            </div>
+            <div className="heroTrust">
+              <span><BadgeCheck size={15}/> Curated picks</span>
+              <span><ShieldCheck size={15}/> Practical details</span>
+              <span><Star size={14}/> Pros & cons</span>
+            </div>
           </div>
-          <div className="heroVisual" style={{ minHeight: 280 }}>
-            <div className="floatingCard cardA"><span className="miniIcon">★</span><div><b>Better decisions</b><small>Less endless scrolling</small></div></div>
-            <div className="visualOrb" style={{ width: 175, height: 175 }}><span className="heroBrandMark">KSNATIC</span></div>
-            <div className="floatingCard cardB"><small>Our focus</small><strong>Details that actually matter.</strong></div>
+
+          <div className="heroVisual premiumHeroVisual">
+            <div className="heroGridGlow" />
+            <div className="heroVisualLabel">FEATURED DISCOVERY</div>
+            {featuredProduct?.image_url ? (
+              <div className="heroProductStage">
+                <img src={featuredProduct.image_url} alt="" />
+                <div className="heroProductInfo">
+                  <span>KSNATIC PICK</span>
+                  <strong>{featuredProduct.name}</strong>
+                  {featuredProduct.price != null && <b>₹{Number(featuredProduct.price).toLocaleString('en-IN')}</b>}
+                </div>
+              </div>
+            ) : (
+              <div className="heroFallback">
+                <span>KSNATIC</span>
+                <small>DISCOVER · UNDERSTAND · COMPARE · DECIDE</small>
+              </div>
+            )}
           </div>
         </section>
 
-        <section className="quickStrip" aria-label="How KSNATIC works">
-          <div><Search size={19}/><b>Discover</b><span>Find products worth considering</span></div>
-          <div><BadgeCheck size={19}/><b>Compare</b><span>Pros, cons & useful details</span></div>
-          <div><Zap size={19}/><b>Decide</b><span>Then shop from the store</span></div>
+        <section className="quickStrip premiumQuickStrip" aria-label="How KSNATIC works">
+          <div><Search size={19}/><b>01 · Discover</b><span>Find products that deserve a closer look.</span></div>
+          <div><BadgeCheck size={19}/><b>02 · Understand</b><span>See the details that actually matter.</span></div>
+          <div><Zap size={19}/><b>03 · Decide</b><span>Compare your options, then shop with confidence.</span></div>
         </section>
 
-        {(beauty || clothing) && <section className="section" style={{ paddingTop: 42, paddingBottom: 10 }}>
-          <div className="sectionhead"><div><span className="sectionKicker">SHOP BY CATEGORY</span><h2>Explore picks</h2><div className="muted small">Quick picks first. Open any product for the full details.</div></div></div>
-          {beauty && <div style={{ marginBottom: 28 }}><div className="sectionhead" style={{ marginBottom: 12 }}><h3 style={{ margin: 0, fontSize: 20 }}>{beauty.name}</h3><Link className="viewAll" href={`/products?category=${encodeURIComponent(beauty.id)}`}>See all <ChevronRight size={15}/></Link></div>{beautyProducts.length ? <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 6, scrollbarWidth: 'thin' }}>{beautyProducts.map((p: any) => <ProductCard key={p.id} product={p} compact />)}</div> : <div className="empty">Beauty picks are coming soon.</div>}</div>}
-          {clothing && <div><div className="sectionhead" style={{ marginBottom: 12 }}><h3 style={{ margin: 0, fontSize: 20 }}>{clothing.name}</h3><Link className="viewAll" href={`/products?category=${encodeURIComponent(clothing.id)}`}>See all <ChevronRight size={15}/></Link></div>{clothingProducts.length ? <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 6, scrollbarWidth: 'thin' }}>{clothingProducts.map((p: any) => <ProductCard key={p.id} product={p} compact />)}</div> : <div className="empty">Clothing picks are coming soon.</div>}</div>}
-        </section>}
-
-        <section className="section picksSection" style={{ paddingTop: 34 }}>
-          <div className="sectionhead"><div><span className="sectionKicker">JUST IN</span><h2>Latest picks</h2><div className="muted small">A clean shortlist of products worth your attention.</div></div><Link className="viewAll" href="/products">View all <ChevronRight size={16}/></Link></div>
-          {products?.length ? <div className="grid productgrid">{products.map((p: any) => <ProductCard key={p.id} product={p}/>)}</div> : <div className="empty">Our first picks are being prepared. Check back soon.</div>}
+        <section className="section categorySection">
+          <div className="sectionhead">
+            <div><span className="sectionKicker">EXPLORE</span><h2>What are you looking for?</h2><div className="muted small">Start with a category and discover what’s worth considering.</div></div>
+            <Link className="viewAll" href="/products">All products <ChevronRight size={15}/></Link>
+          </div>
+          <div className="categoryTiles">
+            {featuredCategories.map((category: any, index: number) => (
+              <Link className="categoryTile" key={category.id} href={`/products?category=${encodeURIComponent(category.id)}`}>
+                <span>0{index + 1}</span><strong>{category.name}</strong><ChevronRight size={16}/>
+              </Link>
+            ))}
+          </div>
         </section>
 
-        <section className="guideBanner"><div><span className="sectionKicker">BUYING GUIDES</span><h2>Don’t just buy.<br/>Know what you’re buying.</h2><p>Simple guides for choosing products without getting lost in hundreds of listings.</p></div><Link className="btn primary" href="/guides">Explore guides <ArrowRight size={16}/></Link></section>
+        <section className="section picksSection">
+          <div className="sectionhead">
+            <div><span className="sectionKicker">CURATED NOW</span><h2>Worth a closer look</h2><div className="muted small">A focused shortlist — not an endless product dump.</div></div>
+            <Link className="viewAll" href="/products">View all <ChevronRight size={16}/></Link>
+          </div>
+          {productList.length ? <div className="grid productgrid">{productList.map((p: any) => <ProductCard key={p.id} product={p}/>)}</div> : <div className="empty">Our first picks are being prepared. Check back soon.</div>}
+        </section>
+
+        <section className="editorialHome">
+          <div>
+            <span className="sectionKicker">THE KSNATIC STANDARD</span>
+            <h2>Not everything needs a recommendation.</h2>
+            <p>We’re building KSNATIC around a simple idea: fewer, better-informed choices. Every pick should give you enough context to decide whether it belongs on your shortlist.</p>
+          </div>
+          <div className="editorialPoints">
+            <div><b>Useful, not noisy.</b><span>Details with a reason to exist.</span></div>
+            <div><b>Clear, not complicated.</b><span>Pros, limitations and who it suits.</span></div>
+            <div><b>Decision-first.</b><span>Research before you reach the store.</span></div>
+          </div>
+        </section>
+
+        <section className="guideBanner">
+          <div><span className="sectionKicker">BUYING GUIDES</span><h2>Don’t just buy.<br/>Know what you’re buying.</h2><p>Simple, practical guides for choosing products without getting lost in hundreds of listings.</p></div>
+          <Link className="btn primary" href="/guides">Explore guides <ArrowRight size={16}/></Link>
+        </section>
+
         <Footer />
       </div>
     </main>
