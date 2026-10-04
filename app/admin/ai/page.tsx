@@ -66,7 +66,7 @@ export default function AIWriter() {
   if (!allowed) return <main className="aiPage"><div className="aiCard"><Link href="/admin">← Admin</Link><h1>AI Product Builder</h1><p>Admin access required.</p></div></main>
 
   return <main className="aiPage"><div className="aiWrap">
-    <header><Link className="back" href="/admin">← Admin dashboard</Link><div className="eyebrow">AYUSHPICKS · AI PRODUCT BUILDER</div><h1>Turn an affiliate link into a product.</h1><p>Paste the product link and AI will try to collect the product name, image, current price and previous/list price, then write the description, pros, cons and tags. Review everything before publishing.</p></header>
+    <header><Link className="back" href="/admin">← Admin dashboard</Link><div className="eyebrow">KSNATIC · AI PRODUCT BUILDER</div><h1>Turn an affiliate link into a product.</h1><p>Paste the product link and AI will try to collect the product name, image, current price and previous/list price, then write the description, pros, cons and tags. Review everything before publishing.</p></header>
 
     <section className="aiCard"><div className="modeRow"><div><h2>1 · Add product</h2><p className="muted">Auto mode is fastest. Manual mode is always available when a page cannot be read.</p></div><div className="tabs"><button className={mode==='auto'?'active':''} onClick={()=>{setMode('auto');setMessage('')}}>🔗 Affiliate link</button><button className={mode==='manual'?'active':''} onClick={()=>{setMode('manual');setMessage('')}}>✍ Manual</button></div></div>
       {mode==='auto' ? <>
