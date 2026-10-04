@@ -259,3 +259,9 @@ img{max-width:100%;height:auto}
   .compareVerdict h2{font-size:24px}
   .specRow{grid-template-columns:1fr;gap:5px}
 }
+
+/* Affiliate disclosure: intentionally subtle, never concealed */
+.affiliateDisclosure{display:block;margin:34px 0 10px;padding:10px 0;border:0;border-top:1px solid var(--line);background:transparent;color:var(--muted);font-size:10px;line-height:1.55}
+.affiliateDisclosureLabel{font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-right:7px}
+.affiliateDisclosureText{color:var(--muted)}
+.affiliateDisclosure.compact{margin:16px 0 6px;padding:8px 0}
