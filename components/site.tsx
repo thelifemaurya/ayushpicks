@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Search } from 'lucide-react'
+import { ArrowUpRight, Menu, Search, Sparkles } from 'lucide-react'
 
 type Product = {
   id: string
@@ -23,27 +23,85 @@ export function Header() {
     <header className="nav">
       <Link className="brand" href="/" aria-label="KSNATIC home"><Brand /></Link>
       <form className="navSearch" action="/products" role="search">
-        <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
+        <Search size={16} aria-hidden="true" />
+        <input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
       </form>
-      <nav className="navlinks" aria-label="Primary navigation"><Link href="/">Home</Link><Link href="/products">Discover</Link><Link href="/guides">Guides</Link><Link href="/about">About</Link></nav>
-      <div className="navActions"><Link className="btn navExplore" href="/products">Explore</Link></div>
+      <nav className="navlinks" aria-label="Primary navigation">
+        <Link href="/products">Discover</Link>
+        <Link href="/guides">Guides</Link>
+        <Link href="/about">About</Link>
+      </nav>
+      <div className="navActions">
+        <Link className="btn navExplore" href="/products">Explore <ArrowUpRight size={15}/></Link>
+        <details className="mobileMenu">
+          <summary aria-label="Open navigation menu"><Menu size={20}/></summary>
+          <div className="mobileMenuPanel">
+            <form className="mobileSearch" action="/products" role="search">
+              <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products…" />
+            </form>
+            <Link href="/products">Discover</Link>
+            <Link href="/guides">Guides</Link>
+            <Link href="/about">About</Link>
+            <Link className="btn primary" href="/products">Explore picks</Link>
+          </div>
+        </details>
+      </div>
     </header>
   )
 }
 
 export function Footer() {
-  return <footer className="sitefooter"><div className="footergrid"><div><Link className="brand" href="/"><Brand /></Link><p className="muted small">Useful products. Better decisions.</p></div><div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Products</Link><Link href="/guides">Guides</Link></div><div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div><div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div></div><div className="footerbottom">© {new Date().getFullYear()} KSNATIC. Product discovery and recommendations by Ayush Mourya.</div></footer>
+  return (
+    <footer className="sitefooter">
+      <div className="footergrid">
+        <div className="footerBrand">
+          <Link className="brand" href="/"><Brand /></Link>
+          <p className="muted small">Discover better. Decide smarter.</p>
+          <p className="muted small">Independent product discovery for everyday buying decisions.</p>
+        </div>
+        <div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Discover</Link><Link href="/guides">Guides</Link></div>
+        <div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div>
+        <div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div>
+      </div>
+      <div className="footerbottom">© {new Date().getFullYear()} KSNATIC. Product discovery and recommendations by Ayush Mourya.</div>
+    </footer>
+  )
 }
 
 export function ProductCard({ product, compact = false }: { product: Product; compact?: boolean }) {
   const price = product.price != null ? `₹${Number(product.price).toLocaleString('en-IN')}` : null
   const oldPrice = product.old_price != null ? `₹${Number(product.old_price).toLocaleString('en-IN')}` : null
-  if (compact) {
-    return <article className="card productcard" style={{ minWidth: 184, width: 184, flex: '0 0 184px' }}><Link href={`/products/${product.slug}`} aria-label={`View ${product.name}`}><div className="image" style={{ aspectRatio: '1 / 1', background: 'var(--panel2)' }}>{product.image_url ? <img src={product.image_url} alt={product.name} loading="lazy" referrerPolicy="no-referrer" style={{ transform: 'scale(1.06)' }}/> : <span>No image</span>}</div><div className="cardbody" style={{ padding: '10px 11px 12px' }}><div className="tag" style={{ fontSize: 9 }}>{product.store || 'Store'}</div><h3 style={{ marginTop: 5, marginBottom: 4, fontSize: 14, lineHeight: 1.25 }}>{product.name}</h3><div className="priceLine" style={{ marginTop: 7 }}>{price&&<strong className="price" style={{ fontSize: 14 }}>{price}</strong>}{oldPrice&&<span className="oldprice" style={{ fontSize: 10 }}>{oldPrice}</span>}</div></div></Link></article>
-  }
-  return <article className="card productcard"><Link href={`/products/${product.slug}`} aria-label={`View ${product.name}`}><div className="image" style={{ aspectRatio: '1.06 / 1' }}>{product.image_url ? <img src={product.image_url} alt={product.name} loading="lazy" referrerPolicy="no-referrer" style={{ transform: 'scale(1.08)' }}/> : <span>No image</span>}</div><div className="cardbody" style={{ padding: '14px 14px 15px' }}><div className="tag">{product.store || 'Store'}</div><h3 style={{ marginTop: 6, marginBottom: 6 }}>{product.name}</h3>{product.short_description&&<p className="muted small line2" style={{ minHeight: 32, marginBottom: 0 }}>{product.short_description}</p>}<div className="priceLine" style={{ marginTop: 11 }}>{price&&<strong className="price">{price}</strong>}{oldPrice&&<span className="oldprice">{oldPrice}</span>}</div><div className="picklink" style={{ marginTop: 11 }}>View pick <span>→</span></div></div></Link></article>
+  return (
+    <article className={`card productcard ${compact ? 'compactProductCard' : ''}`}>
+      <Link href={`/products/${product.slug}`} aria-label={`View ${product.name}`}>
+        <div className="image productImage">
+          {product.image_url ? <img src={product.image_url} alt={product.name} loading="lazy" referrerPolicy="no-referrer" /> : <span>No image</span>}
+          {product.featured && <span className="productBadge"><Sparkles size={10}/> KSNATIC PICK</span>}
+        </div>
+        <div className="cardbody">
+          <div className="tag">{product.store || 'Worth considering'}</div>
+          <h3>{product.name}</h3>
+          {product.short_description && <p className="muted small line2 productDesc">{product.short_description}</p>}
+          <div className="priceLine">{price && <strong className="price">{price}</strong>}{oldPrice && <span className="oldprice">{oldPrice}</span>}</div>
+          <div className="picklink">See why we picked it <ArrowUpRight size={13}/></div>
+        </div>
+      </Link>
+    </article>
+  )
 }
 
 export function PageShell({ title, kicker, children, compactHero = false }: { title: string; kicker?: string; children: React.ReactNode; compactHero?: boolean }) {
-  return <><div className="container"><Header/><section className="pagehero" style={compactHero ? { paddingTop: 42, paddingBottom: 22 } : undefined}>{kicker&&<div className="eyebrow">{kicker}</div>}<h1 style={compactHero ? { fontSize: 'clamp(38px, 5vw, 58px)', marginTop: 14, marginBottom: 10 } : undefined}>{title}</h1></section>{children}<Footer/></div></>
+  return (
+    <>
+      <div className="container">
+        <Header />
+        <section className="pagehero" style={compactHero ? { paddingTop: 42, paddingBottom: 22 } : undefined}>
+          {kicker && <div className="eyebrow">{kicker}</div>}
+          <h1 style={compactHero ? { fontSize: 'clamp(38px, 5vw, 58px)', marginTop: 14, marginBottom: 10 } : undefined}>{title}</h1>
+        </section>
+        {children}
+        <Footer />
+      </div>
+    </>
+  )
 }
