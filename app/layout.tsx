@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'KSNATIC — Products worth picking',
+    title: 'KSNATIC — Discover better. Decide smarter.',
     description: 'Useful products, practical details and buying guides.',
     images: ['/opengraph-image'],
   },
