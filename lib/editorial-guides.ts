@@ -36,7 +36,7 @@ export const editorialGuides: EditorialGuide[] = [
     ]
   },
   {
-    slug: 'how-ayushpicks-evaluates-products',
+    slug: 'how-ksnatic-evaluates-products',
     title: 'How KSNATIC evaluates products',
     excerpt: 'Our editorial approach to product discovery, including what we look for, what we avoid and how affiliate links fit into the site.',
     updatedAt: '2026-09-15',
