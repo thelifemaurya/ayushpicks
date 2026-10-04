@@ -69,9 +69,10 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
         </section>
 
         <section className="quickStrip premiumQuickStrip" aria-label="How KSNATIC works">
-          <div><Search size={19}/><b>01 · Discover</b><span>Find products that deserve a closer look.</span></div>
-          <div><BadgeCheck size={19}/><b>02 · Understand</b><span>See the details that actually matter.</span></div>
-          <div><Zap size={19}/><b>03 · Decide</b><span>Compare your options, then shop with confidence.</span></div>
+          <div><Search size={19}/><b>01 · Discover</b><span>Find products worth a closer look.</span></div>
+          <div><BadgeCheck size={19}/><b>02 · Compare</b><span>Understand the differences and trade-offs.</span></div>
+          <div><ShieldCheck size={19}/><b>03 · Decide</b><span>Use clear pros, limitations and context.</span></div>
+          <div><Zap size={19}/><b>04 · Buy</b><span>Leave KSNATIC with confidence, not guesswork.</span></div>
         </section>
 
         <section className="section categorySection">
