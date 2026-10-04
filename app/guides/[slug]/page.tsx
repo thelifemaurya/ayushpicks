@@ -24,8 +24,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const result = await getGuide(slug)
   if (!result) return {}
   const title = result.guide.title
-  const description = result.guide.excerpt || 'A practical buying guide from AYUSHPICKS.'
-  return { title, description, alternates: { canonical: `${SITE_URL}/guides/${slug}` }, openGraph: { title: `${title} | AYUSHPICKS`, description, url: `${SITE_URL}/guides/${slug}`, type: 'article' } }
+  const description = result.guide.excerpt || 'A practical buying guide from KSNATIC.'
+  return { title, description, alternates: { canonical: `${SITE_URL}/guides/${slug}` }, openGraph: { title: `${title} | KSNATIC`, description, url: `${SITE_URL}/guides/${slug}`, type: 'article' } }
 }
 
 export default async function GuideDetail({ params }: { params: Promise<{ slug: string }> }) {
