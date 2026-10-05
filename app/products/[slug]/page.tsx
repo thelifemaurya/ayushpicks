@@ -101,6 +101,6 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
       <Link className="textlink" href="/products">Explore more picks <ArrowRight size={15}/></Link>
     </section>
 
-    <AffiliateDisclosure />
+    <section className="researchNext"><div className="eyebrow">CONTINUE YOUR RESEARCH</div><h2>Buying better is usually about the comparison.</h2><p className="muted">Before purchasing, use KSNATIC’s practical guides to check the trade-offs, retailer details and questions worth asking.</p><div className="researchLinks"><Link href="/guides/how-to-compare-products-online">How to compare products <ArrowRight size={14}/></Link><Link href="/guides/how-to-build-a-useful-product-shortlist">Build a useful shortlist <ArrowRight size={14}/></Link><Link href="/guides/how-to-choose-products-worth-buying">Choose products worth buying <ArrowRight size={14}/></Link></div></section>\n\n    <AffiliateDisclosure />
   </PageShell>
 }
