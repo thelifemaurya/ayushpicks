@@ -555,3 +555,19 @@ img{max-width:100%;height:auto}
     -webkit-line-clamp:4;
   }
 }
+
+/* KSNATIC V8 — trust and research depth */
+.guideMeta{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 20px;color:var(--muted);font-size:11px;letter-spacing:.01em}
+.guideMeta span+span{padding-left:18px;border-left:1px solid var(--line)}
+.researchNext{margin:72px 0 10px;padding:34px;border:1px solid var(--line);border-radius:22px;background:var(--panel)}
+.researchNext h2{max-width:680px;margin:8px 0 10px;font-size:clamp(26px,3vw,38px);letter-spacing:-.045em}
+.researchNext p{max-width:650px}
+.researchLinks{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.researchLinks a{display:inline-flex;align-items:center;gap:7px;padding:11px 13px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font-size:11px;font-weight:700}
+.researchLinks a:hover{border-color:var(--accent);transform:translateY(-1px)}
+@media(max-width:600px){
+ .researchNext{margin-top:48px;padding:22px}
+ .researchLinks{display:grid}
+ .researchLinks a{justify-content:space-between}
+ .guideMeta{font-size:10px}
+}
