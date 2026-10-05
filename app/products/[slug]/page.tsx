@@ -59,7 +59,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
     ...(score !== null ? { review: { '@type': 'Review', reviewRating: { '@type': 'Rating', ratingValue: score, bestRating: 10, worstRating: 1 }, author: { '@type': 'Organization', name: 'KSNATIC' } } } : {}),
   }
 
-  return <PageShell title={product.name} kicker={product.store || 'PRODUCT PICK'}>
+  const displayTitle = product.name.length > 82 ? product.name.slice(0, 82).replace(/\s+\S*$/, '') + '…' : product.name\n\n  return <PageShell title={displayTitle} kicker={product.store || 'PRODUCT PICK'} compactHero>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
     <Link href="/products" className="backhome">← Back to discovery</Link>
 
