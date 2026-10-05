@@ -95,7 +95,7 @@ export function PageShell({ title, kicker, children, compactHero = false }: { ti
     <>
       <div className="container">
         <Header />
-        <section className="pagehero" style={compactHero ? { paddingTop: 42, paddingBottom: 22 } : undefined}>
+        <section className={compactHero ? "pagehero productPageHero" : "pagehero"} style={compactHero ? { paddingTop: 34, paddingBottom: 18 } : undefined}>
           {kicker && <div className="eyebrow">{kicker}</div>}
           <h1 style={compactHero ? { fontSize: 'clamp(38px, 5vw, 58px)', marginTop: 14, marginBottom: 10 } : undefined}>{title}</h1>
         </section>
