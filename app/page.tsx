@@ -75,6 +75,14 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           <div className="homeSearchHint">Try “gaming”, “beauty”, “under ₹1000”, or a product name.</div>
         </section>
 
+        <section className="spotlightIntro">
+          <div>
+            <span className="sectionKicker">AYUSHPICKS SPOTLIGHT</span>
+            <h2>Worth seeing right now.</h2>
+            <p>Selected picks, rotating automatically. Swipe, tap, or use the controls to explore.</p>
+          </div>
+          <span className="spotlightIntroMeta">01—04 · AUTO</span>
+        </section>
         <HomeSpotlight slides={spotlightSlides} />
 
         <section className="quickStrip premiumQuickStrip" aria-label="How AYUSHPICKS works">
