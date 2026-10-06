@@ -11,6 +11,9 @@ export default function ProductFilters({ categories }: { categories: any[] }) {
   const [pending, startTransition] = useTransition()
   const active = params.get('category') || ''
   const q = params.get('q') || ''
+  const iconFor = (name: string) => ({
+    Accessories: '👜', Beauty: '✨', Electronics: '⚡', Fashion: '👕', Gaming: '🎮', Home: '🏠', Kitchen: '🍳', Other: '✦'
+  } as Record<string,string>)[name] || '✦'
 
   function selectCategory(category: string) {
     const next = new URLSearchParams(params.toString())
@@ -26,8 +29,8 @@ export default function ProductFilters({ categories }: { categories: any[] }) {
         {pending && <span className="filterloading">Updating…</span>}
       </div>
       <div className="filterchips" aria-label="Product categories">
-        <button type="button" className={!active ? 'filterchip active' : 'filterchip'} onClick={() => selectCategory('')} disabled={pending}>All</button>
-        {categories.map((c: any) => <button type="button" key={c.id} className={active === c.id ? 'filterchip active' : 'filterchip'} onClick={() => selectCategory(c.id)} disabled={pending}>{c.name}</button>)}
+        <button type="button" className={!active ? 'filterchip active' : 'filterchip'} onClick={() => selectCategory('')} disabled={pending}><span aria-hidden="true">✦</span>All</button>
+        {categories.map((c: any) => <button type="button" key={c.id} className={active === c.id ? 'filterchip active' : 'filterchip'} onClick={() => selectCategory(c.id)} disabled={pending}><span aria-hidden="true">{iconFor(c.name)}</span>{c.name}</button>)}
       </div>
       {(active || q) && <div className="activefilter"><span>{active ? `Category: ${categories.find((c: any) => c.id === active)?.name || 'Selected'}` : `Search: “${q}”`}</span><Link href="/products">Clear</Link></div>}
       <style jsx>{`
@@ -37,7 +40,7 @@ export default function ProductFilters({ categories }: { categories: any[] }) {
         .filterloading{font-size:10px;color:var(--accent);white-space:nowrap}
         .filterchips{display:flex;width:100%;max-width:100%;min-width:0;gap:6px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding:1px 1px 3px;-webkit-overflow-scrolling:touch;touch-action:pan-x}
         .filterchips::-webkit-scrollbar{display:none}
-        .filterchip{flex:0 0 auto;white-space:nowrap;border:1px solid var(--line);background:var(--panel2);color:var(--muted);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;line-height:1.2;cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}
+        .filterchip{flex:0 0 auto;white-space:nowrap;border:1px solid var(--line);background:var(--panel2);color:var(--muted);border-radius:8px;padding:8px 11px;font-size:11px;font-weight:650;line-height:1.2;cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease;display:inline-flex;align-items:center;gap:5px}
         .filterchip:hover:not(:disabled){color:var(--text);border-color:var(--accent);transform:translateY(-1px)}
         .filterchip.active{background:rgba(79,111,240,.14);color:var(--accent);border-color:rgba(79,111,240,.5);box-shadow:inset 0 0 0 1px rgba(79,111,240,.06)}
         .filterchip:disabled{opacity:.6;cursor:wait}
