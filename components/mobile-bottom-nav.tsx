@@ -7,7 +7,9 @@ import { useEffect } from 'react'
 import CartLink from './cart-link'
 
 export default function MobileBottomNav(){
-  const pathname=usePathname()\n  const router=useRouter()\n  useEffect(() => { router.prefetch('/'); router.prefetch('/products'); router.prefetch('/cart') }, [router])
+  const pathname=usePathname()
+  const router=useRouter()
+  useEffect(() => { router.prefetch('/'); router.prefetch('/products'); router.prefetch('/cart') }, [router])
   const home=pathname==='/' 
   const search=pathname==='/products'
   const cart=pathname==='/cart'
