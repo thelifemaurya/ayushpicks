@@ -19,7 +19,7 @@ export const editorialGuides: EditorialGuide[] = [
       ]},
       { heading: 'Separate facts from selling points', paragraphs: [
         'Product listings mix specifications, claims, descriptions and promotional language. Treat them differently. A measurable specification is useful when it is relevant to your decision; a broad phrase such as “premium experience” tells you much less by itself.',
-        'At KSNATIC, we try to keep factual product information separate from our editorial explanation. When a detail can change over time, such as price or availability, check the retailer before completing a purchase.'
+        'At AYUSHPICKS, we try to keep factual product information separate from our editorial explanation. When a detail can change over time, such as price or availability, check the retailer before completing a purchase.'
       ]},
       { heading: 'Compare the details that actually change your decision', paragraphs: [
         'Make a short comparison list before opening ten product pages. Depending on the category, that can include size, compatibility, warranty, included items, power requirements, material, connectivity, or other relevant specifications.',
@@ -36,13 +36,13 @@ export const editorialGuides: EditorialGuide[] = [
     ]
   },
   {
-    slug: 'how-ksnatic-evaluates-products',
-    title: 'How KSNATIC evaluates products',
+    slug: 'how-ayushpicks-evaluates-products',
+    title: 'How AYUSHPICKS evaluates products',
     excerpt: 'Our editorial approach to product discovery, including what we look for, what we avoid and how affiliate links fit into the site.',
     updatedAt: '2026-09-15',
     sections: [
       { heading: 'Our purpose', paragraphs: [
-        'KSNATIC is designed to reduce the work involved in comparing online products. We are not the retailer and we do not process your order. Our job is to add context so that a product listing is easier to understand and compare.',
+        'AYUSHPICKS is designed to reduce the work involved in comparing online products. We are not the retailer and we do not process your order. Our job is to add context so that a product listing is easier to understand and compare.',
         'A product is not included simply because it is available online. The information on the page should give a reader a practical reason to consider the product and enough context to decide whether it fits their needs.'
       ]},
       { heading: 'What we look at', paragraphs: [
@@ -50,16 +50,16 @@ export const editorialGuides: EditorialGuide[] = [
         'We avoid treating a single number, rating or promotional claim as a complete assessment. Context matters, and the useful comparison points differ from category to category.'
       ]},
       { heading: 'Our editorial layer', paragraphs: [
-        'Retailer information can help establish product facts, but KSNATIC should add its own explanation. Short descriptions, reasons for considering a product, pros and things to consider are written as editorial context rather than copied listing text.',
+        'Retailer information can help establish product facts, but AYUSHPICKS should add its own explanation. Short descriptions, reasons for considering a product, pros and things to consider are written as editorial context rather than copied listing text.',
         'Where information is incomplete or uncertain, we prefer to leave it out rather than invent a specification, feature, price or performance claim. Prices and availability are treated as changeable information and should be verified at the retailer.'
       ]},
       { heading: 'Affiliate transparency', paragraphs: [
-        'Some links on KSNATIC may be affiliate links. If you purchase through one of those links, we may receive a commission at no additional cost to you. That commercial relationship does not change the need for useful and honest editorial information.',
-        'KSNATIC does not handle payment, shipping or returns for retailer purchases. The final transaction takes place on the retailer website, where current terms should be reviewed.'
+        'Some links on AYUSHPICKS may be affiliate links. If you purchase through one of those links, we may receive a commission at no additional cost to you. That commercial relationship does not change the need for useful and honest editorial information.',
+        'AYUSHPICKS does not handle payment, shipping or returns for retailer purchases. The final transaction takes place on the retailer website, where current terms should be reviewed.'
       ]},
       { heading: 'Keeping the process useful', paragraphs: [
         'We would rather publish fewer useful pages than fill the site with repetitive product descriptions. Our goal is to make each guide and product page answer a real question a buyer could have before spending money.',
-        'This policy also means that drafts produced with software or AI are not intended to bypass editorial review. Published material should be checked for accuracy, clarity, originality and usefulness before it becomes part of KSNATIC.'
+        'This policy also means that drafts produced with software or AI are not intended to bypass editorial review. Published material should be checked for accuracy, clarity, originality and usefulness before it becomes part of AYUSHPICKS.'
       ]}
     ]
   },
@@ -151,7 +151,7 @@ export const editorialGuides: EditorialGuide[] = [
       ]},
       { heading: 'Seller, warranty and returns', paragraphs: [
         'Review the retailer’s current seller information, warranty details and return policy where applicable. These terms can matter as much as the product specification for an expensive purchase.',
-        'KSNATIC does not control retailer policies. The retailer’s current terms should always be treated as the final source for the transaction.'
+        'AYUSHPICKS does not control retailer policies. The retailer’s current terms should always be treated as the final source for the transaction.'
       ]},
       { heading: 'Final decision', paragraphs: [
         'If the product fits your needs, the current price makes sense, and you understand the important terms, you have done the useful part of the research. If one of those answers is unclear, pause before purchasing.',
