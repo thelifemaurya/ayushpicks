@@ -44,10 +44,6 @@ export default async function Products({ searchParams }: { searchParams?: Promis
                   : 'A focused collection of products worth understanding before you buy.'}
             </p>
           </div>
-          <div className="discoveryMeta">
-            <strong>{productList.length}</strong>
-            <span>{productList.length === 1 ? 'pick' : 'picks'} available</span>
-          </div>
         </div>
 
         <div className="discoverySearchRow">
