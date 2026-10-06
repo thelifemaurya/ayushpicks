@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/guides/how-ayushpicks-evaluates-products',
-        destination: '/guides/how-ksnatic-evaluates-products',
+        destination: '/guides/how-ayushpicks-evaluates-products',
         permanent: true,
       },
       {
