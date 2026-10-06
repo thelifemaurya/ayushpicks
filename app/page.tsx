@@ -31,11 +31,11 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           ))}
         </div>
 
-        <section className="homeHero ksnaticHero">
+        <section className="homeHero ayushpicksHero">
           <div className="heroCopy">
             <div className="eyebrow"><Sparkles size={13}/> INDEPENDENT PRODUCT DISCOVERY</div>
             <h1>Find what’s worth it.<br/><span>Skip the noise.</span></h1>
-            <p>KSNATIC helps you discover, understand, compare, and choose products before you buy — with useful details, honest context, and clear recommendations.</p>
+            <p>AYUSHPICKS helps you discover, understand, compare, and choose products before you buy — with useful details, honest context, and clear recommendations.</p>
             <div className="heroActions">
               <Link className="btn primary big" href="/products">Explore picks <ArrowRight size={17}/></Link>
               <Link className="textlink" href="/guides">How we choose <ChevronRight size={15}/></Link>
@@ -54,25 +54,25 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
               <div className="heroProductStage">
                 <img src={featuredProduct.image_url} alt="" />
                 <div className="heroProductInfo">
-                  <span>KSNATIC PICK</span>
+                  <span>AYUSHPICKS PICK</span>
                   <strong>{featuredProduct.name}</strong>
                   {featuredProduct.price != null && <b>₹{Number(featuredProduct.price).toLocaleString('en-IN')}</b>}
                 </div>
               </div>
             ) : (
               <div className="heroFallback">
-                <span>KSNATIC</span>
+                <span>AYUSHPICKS</span>
                 <small>DISCOVER · UNDERSTAND · COMPARE · DECIDE</small>
               </div>
             )}
           </div>
         </section>
 
-        <section className="quickStrip premiumQuickStrip" aria-label="How KSNATIC works">
+        <section className="quickStrip premiumQuickStrip" aria-label="How AYUSHPICKS works">
           <div><Search size={19}/><b>01 · Discover</b><span>Find products worth a closer look.</span></div>
           <div><BadgeCheck size={19}/><b>02 · Compare</b><span>Understand the differences and trade-offs.</span></div>
           <div><ShieldCheck size={19}/><b>03 · Decide</b><span>Use clear pros, limitations and context.</span></div>
-          <div><Zap size={19}/><b>04 · Buy</b><span>Leave KSNATIC with confidence, not guesswork.</span></div>
+          <div><Zap size={19}/><b>04 · Buy</b><span>Leave AYUSHPICKS with confidence, not guesswork.</span></div>
         </section>
 
         <section className="section categorySection">
@@ -99,9 +99,9 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
 
         <section className="editorialHome">
           <div>
-            <span className="sectionKicker">THE KSNATIC STANDARD</span>
+            <span className="sectionKicker">THE AYUSHPICKS STANDARD</span>
             <h2>Not everything needs a recommendation.</h2>
-            <p>We’re building KSNATIC around a simple idea: fewer, better-informed choices. Every pick should give you enough context to decide whether it belongs on your shortlist.</p>
+            <p>We’re building AYUSHPICKS around a simple idea: fewer, better-informed choices. Every pick should give you enough context to decide whether it belongs on your shortlist.</p>
           </div>
           <div className="editorialPoints">
             <div><b>Useful, not noisy.</b><span>Details with a reason to exist.</span></div>
