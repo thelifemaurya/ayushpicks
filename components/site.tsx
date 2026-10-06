@@ -1,5 +1,7 @@
 import Link from 'next/link'
-import { ArrowUpRight, Home, Menu, Search, Sparkles, Compass, BookOpen } from 'lucide-react'
+import { ArrowUpRight, Home, Menu, Search, Sparkles } from 'lucide-react'
+import CartLink from '@/components/cart-link'
+import { PickButton } from '@/components/pick-button'
 
 type Product = {
   id: string
@@ -40,11 +42,10 @@ export function Header() {
       </form>
       <nav className="navlinks" aria-label="Primary navigation">
         <Link href="/products">Discover</Link>
-        <Link href="/guides">Guides</Link>
         <Link href="/about">About</Link>
       </nav>
       <div className="navActions">
-        <Link className="btn navExplore" href="/products">Explore <ArrowUpRight size={15}/></Link>
+        <CartLink />
       </div>
     </header>
   )
@@ -59,7 +60,7 @@ export function Footer() {
           <p className="muted small">Discover better. Decide smarter.</p>
           <p className="muted small">Independent product discovery for everyday buying decisions.</p>
         </div>
-        <div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Discover</Link><Link href="/guides">Guides</Link></div>
+        <div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Discover</Link><Link href="/cart">Cart</Link></div>
         <div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link><a href="https://www.instagram.com/ayushpicks" target="_blank" rel="noopener noreferrer">Instagram</a></div>
         <div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div>
       </div>
@@ -67,8 +68,7 @@ export function Footer() {
       <nav className="mobileBottomNav" aria-label="Mobile navigation">
         <Link href="/" className="mobileBottomItem"><Home size={18}/><span>Home</span></Link>
         <Link href="/products" className="mobileBottomItem"><Search size={18}/><span>Search</span></Link>
-        <Link href="/products" className="mobileBottomItem"><Compass size={18}/><span>Picks</span></Link>
-        <Link href="/guides" className="mobileBottomItem"><BookOpen size={18}/><span>Guides</span></Link>
+        <CartLink mobile />
       </nav>
     </footer>
   )
@@ -92,6 +92,7 @@ export function ProductCard({ product, compact = false }: { product: Product; co
           <div className="picklink">See why we picked it <ArrowUpRight size={13}/></div>
         </div>
       </Link>
+      <div className="productCardAction"><PickButton product={{id:product.id,slug:product.slug,name:product.name,image_url:product.image_url,price:product.price,store:product.store}} /></div>
     </article>
   )
 }
