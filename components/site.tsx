@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowUpRight, Menu, Search, Sparkles } from 'lucide-react'
 
@@ -15,13 +14,13 @@ type Product = {
 }
 
 function Brand() {
-  return <Image src="/ksnatic-logo.png" alt="KSNATIC" width={220} height={64} priority className="brandLogo" />
+  return <span aria-hidden="true" style={{ fontFamily: 'Manrope, system-ui, sans-serif', fontWeight: 800, fontSize: 21, letterSpacing: '-0.06em', whiteSpace: 'nowrap', lineHeight: 1 }}><span style={{ color: 'var(--text)' }}>AYUSH</span><span style={{ color: 'var(--accent)' }}>PICKS</span></span>
 }
 
 export function Header() {
   return (
     <header className="nav">
-      <Link className="brand" href="/" aria-label="KSNATIC home"><Brand /></Link>
+      <Link className="brand" href="/" aria-label="AYUSHPICKS home"><Brand /></Link>
       <form className="navSearch" action="/products" role="search">
         <Search size={16} aria-hidden="true" />
         <input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
@@ -63,7 +62,7 @@ export function Footer() {
         <div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div>
         <div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div>
       </div>
-      <div className="footerbottom">© {new Date().getFullYear()} KSNATIC. Product discovery and recommendations by Ayush Mourya.</div>
+      <div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div>
     </footer>
   )
 }
@@ -76,7 +75,7 @@ export function ProductCard({ product, compact = false }: { product: Product; co
       <Link href={`/products/${product.slug}`} aria-label={`View ${product.name}`}>
         <div className="image productImage">
           {product.image_url ? <img src={product.image_url} alt={product.name} loading="lazy" referrerPolicy="no-referrer" /> : <span>No image</span>}
-          {product.featured && <span className="productBadge"><Sparkles size={10}/> KSNATIC PICK</span>}
+          {product.featured && <span className="productBadge"><Sparkles size={10}/> AYUSHPICKS PICK</span>}
         </div>
         <div className="cardbody">
           <div className="tag">{product.store || 'Worth considering'}</div>
