@@ -21,9 +21,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const parts = slug.split('-vs-').map(decodeURIComponent)
   if (parts.length !== 2) return { title: 'Compare products' }
   const products = await getProducts(parts)
-  if (products.length !== 2) return { title: 'Compare products | KSNATIC' }
+  if (products.length !== 2) return { title: 'Compare products | AYUSHPICKS' }
   const title = products[0].name + ' vs ' + products[1].name
-  return { title, description: 'Compare ' + products[0].name + ' and ' + products[1].name + ' side by side on KSNATIC.', alternates: { canonical: SITE_URL + '/compare/' + slug } }
+  return { title, description: 'Compare ' + products[0].name + ' and ' + products[1].name + ' side by side on AYUSHPICKS.', alternates: { canonical: SITE_URL + '/compare/' + slug } }
 }
 
 function score(product: any) {
@@ -68,12 +68,12 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
         {[a, b].map((p: any) => (
           <article className="compareProduct" key={p.id}>
             <div className="compareThumb">
-              {p.image_url ? <Image src={p.image_url} alt="" fill sizes="(max-width: 650px) 42vw, 220px" style={{objectFit:'contain'}} unoptimized /> : <span>KSNATIC</span>}
+              {p.image_url ? <Image src={p.image_url} alt="" fill sizes="(max-width: 650px) 42vw, 220px" style={{objectFit:'contain'}} unoptimized /> : <span>AYUSHPICKS</span>}
             </div>
             <div className="compareProductInfo">
               <span className="tag">{p.store || 'Product'}</span>
               <h2>{p.name}</h2>
-              {score(p) !== null && <div className="compareScore"><strong>{score(p)}/10</strong><span>KSNATIC score</span></div>}
+              {score(p) !== null && <div className="compareScore"><strong>{score(p)}/10</strong><span>AYUSHPICKS score</span></div>}
               {p.price != null && <b className="comparePrice">₹{Number(p.price).toLocaleString('en-IN')}</b>}
               <Link className="btn primary" href={'/go/' + p.slug}>Check price <ArrowRight size={15}/></Link>
             </div>
@@ -84,7 +84,7 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
       <section className="compareMatrix">
         <div className="compareMatrixHead"><span>FEATURE MATRIX</span><strong>Where they differ</strong></div>
         <div className="compareRow compareRowHead"><span>Metric</span><b>{a.name}</b><b>{b.name}</b></div>
-        <div className="compareRow"><span>KSNATIC score</span><strong>{sa !== null ? sa + '/10' : '—'}</strong><strong>{sb !== null ? sb + '/10' : '—'}</strong></div>
+        <div className="compareRow"><span>AYUSHPICKS score</span><strong>{sa !== null ? sa + '/10' : '—'}</strong><strong>{sb !== null ? sb + '/10' : '—'}</strong></div>
         {allKeys.map((key) => (
           <div className="compareRow" key={key}><span>{key.replace(/[_-]/g, ' ')}</span><strong>{String(specs(a)[key] ?? '—')}</strong><strong>{String(specs(b)[key] ?? '—')}</strong></div>
         ))}
@@ -106,8 +106,8 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
         <div className="verdictIcon"><Trophy size={20}/></div>
         <div>
           <span className="sectionKicker">OVERALL VERDICT</span>
-          <h2>{winner ? winner.name + ' leads on KSNATIC’s current score.' : 'Choose based on the trade-offs that matter to you.'}</h2>
-          <p>{winner ? 'That does not make it universally better. Check the feature matrix and limitations above, then verify current price, seller, warranty and availability at the retailer.' : 'KSNATIC avoids declaring a universal winner when the available evidence does not support one.'}</p>
+          <h2>{winner ? winner.name + ' leads on AYUSHPICKS’s current score.' : 'Choose based on the trade-offs that matter to you.'}</h2>
+          <p>{winner ? 'That does not make it universally better. Check the feature matrix and limitations above, then verify current price, seller, warranty and availability at the retailer.' : 'AYUSHPICKS avoids declaring a universal winner when the available evidence does not support one.'}</p>
         </div>
       </section>
 
