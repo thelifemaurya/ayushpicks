@@ -28,10 +28,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!product) return {}
   return {
     title: product.name,
-    description: product.short_description || 'A practical product pick from KSNATIC.',
+    description: product.short_description || 'A practical product pick from AYUSHPICKS.',
     alternates: { canonical: SITE_URL + '/products/' + product.slug },
-    openGraph: { title: product.name + ' | KSNATIC', description: product.short_description || 'A practical product pick from KSNATIC.', url: SITE_URL + '/products/' + product.slug, images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'KSNATIC — Products worth considering' }] },
-    twitter: { card: 'summary_large_image', title: product.name + ' | KSNATIC', description: product.short_description || 'A practical product pick from KSNATIC.', images: ['/opengraph-image'] },
+    openGraph: { title: product.name + ' | AYUSHPICKS', description: product.short_description || 'A practical product pick from AYUSHPICKS.', url: SITE_URL + '/products/' + product.slug, images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'AYUSHPICKS — Products worth considering' }] },
+    twitter: { card: 'summary_large_image', title: product.name + ' | AYUSHPICKS', description: product.short_description || 'A practical product pick from AYUSHPICKS.', images: ['/opengraph-image'] },
   }
 }
 
@@ -56,7 +56,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
     description: product.short_description || undefined,
     brand: product.brand ? { '@type': 'Brand', name: product.brand } : undefined,
     url: SITE_URL + '/products/' + product.slug,
-    ...(score !== null ? { review: { '@type': 'Review', reviewRating: { '@type': 'Rating', ratingValue: score, bestRating: 10, worstRating: 1 }, author: { '@type': 'Organization', name: 'KSNATIC' } } } : {}),
+    ...(score !== null ? { review: { '@type': 'Review', reviewRating: { '@type': 'Rating', ratingValue: score, bestRating: 10, worstRating: 1 }, author: { '@type': 'Organization', name: 'AYUSHPICKS' } } } : {}),
   }
 
   const displayTitle = product.name.length > 82 ? product.name.slice(0, 82).replace(/\s+\S*$/, '') + '…' : product.name
@@ -71,7 +71,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
       </div>
       <div className="detailinfo">
         <div className="tag">{product.store || 'Store'}</div>
-        {score !== null && <div className="productScoreHero"><strong>{score}/10</strong><span>KSNATIC score</span></div>}
+        {score !== null && <div className="productScoreHero"><strong>{score}/10</strong><span>AYUSHPICKS score</span></div>}
         {product.price != null && <div className="detailprice">₹{Number(product.price).toLocaleString('en-IN')}{product.old_price != null && <del>₹{Number(product.old_price).toLocaleString('en-IN')}</del>}</div>}
         <p className="lead">{product.short_description || 'A product selected for its practical value, features and overall usefulness.'}</p>
         {product.why_picked && <div className="editorial"><div className="eyebrow">WHY WE PICKED IT</div><p>{product.why_picked}</p></div>}
@@ -99,10 +99,10 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
 
     <section className="copySection">
       <div className="eyebrow">FINAL CHECK</div><h2>Make the final decision for your needs.</h2>
-      <p>KSNATIC provides product discovery and editorial context; it does not process the purchase. Check the retailer’s current price, availability, seller information, warranty and return terms before completing an order.</p>
+      <p>AYUSHPICKS provides product discovery and editorial context; it does not process the purchase. Check the retailer’s current price, availability, seller information, warranty and return terms before completing an order.</p>
       <Link className="textlink" href="/products">Explore more picks <ArrowRight size={15}/></Link>
     </section>
 
-    <section className="researchNext"><div className="eyebrow">CONTINUE YOUR RESEARCH</div><h2>Buying better is usually about the comparison.</h2><p className="muted">Before purchasing, use KSNATIC’s practical guides to check the trade-offs, retailer details and questions worth asking.</p><div className="researchLinks"><Link href="/guides/how-to-compare-products-online">How to compare products <ArrowRight size={14}/></Link><Link href="/guides/how-to-build-a-useful-product-shortlist">Build a useful shortlist <ArrowRight size={14}/></Link><Link href="/guides/how-to-choose-products-worth-buying">Choose products worth buying <ArrowRight size={14}/></Link></div></section>\n\n    <AffiliateDisclosure />
+    <section className="researchNext"><div className="eyebrow">CONTINUE YOUR RESEARCH</div><h2>Buying better is usually about the comparison.</h2><p className="muted">Before purchasing, use AYUSHPICKS’s practical guides to check the trade-offs, retailer details and questions worth asking.</p><div className="researchLinks"><Link href="/guides/how-to-compare-products-online">How to compare products <ArrowRight size={14}/></Link><Link href="/guides/how-to-build-a-useful-product-shortlist">Build a useful shortlist <ArrowRight size={14}/></Link><Link href="/guides/how-to-choose-products-worth-buying">Choose products worth buying <ArrowRight size={14}/></Link></div></section>\n\n    <AffiliateDisclosure />
   </PageShell>
 }
