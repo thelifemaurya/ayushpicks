@@ -19,18 +19,17 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
   const productList = products || []
   const categoryList = categories || []
   const featuredProduct = productList[0]
-  const featuredCategories = categoryList.slice(0, 6)
-  const categoryIcon = (name: string) => ({
-    Accessories: '👜', Beauty: '✨', Electronics: '⚡', Fashion: '👕',
-    Gaming: '🎮', Home: '🏠', Kitchen: '🍳', Other: '✦'
-  } as Record<string,string>)[name] || '✦'
+  const spotlightProducts = productList.filter((p: any) => p.featured).slice(0, 4)
+  const spotlightSlides = spotlightProducts.length ? spotlightProducts : productList.slice(0, 4)
 
   return (
     <main>
       <div className="container">
         <Header />
 
-        <CategoryRail categories={categoryList} />\n\n        <section className="homeHero ayushpicksHero">
+        <CategoryRail categories={categoryList} />
+
+        <section className="homeHero ayushpicksHero">
           <div className="heroCopy">
             <div className="eyebrow"><Sparkles size={13}/> INDEPENDENT PRODUCT DISCOVERY</div>
             <h1>Find what’s worth it.<br/><span>Skip the noise.</span></h1>
@@ -76,20 +75,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           <div className="homeSearchHint">Try “gaming”, “beauty”, “under ₹1000”, or a product name.</div>
         </section>
 
-        {featuredProduct && (
-          <section className="highlightBanner" aria-label="Latest highlight">
-            <div className="highlightCopy">
-              <span className="highlightKicker"><Sparkles size={13}/> NEW ON AYUSHPICKS</span>
-              <h2>A fresh pick worth a closer look.</h2>
-              <p>{featuredProduct.short_description || 'A product selected for a clearer buying decision — with the details that actually matter.'}</p>
-              <Link className="highlightLink" href={`/products/${featuredProduct.slug}`}>Explore the highlight <ArrowRight size={15}/></Link>
-            </div>
-            <Link className="highlightProduct" href={`/products/${featuredProduct.slug}`}>
-              {featuredProduct.image_url && <img src={featuredProduct.image_url} alt="" />}
-              <span>AYUSHPICKS PICK</span>
-            </Link>
-          </section>
-        )}
+        <HomeSpotlight slides={spotlightSlides} />
 
         <section className="quickStrip premiumQuickStrip" aria-label="How AYUSHPICKS works">
           <div><Search size={19}/><b>01 · Discover</b><span>Find products worth a closer look.</span></div>
@@ -103,7 +89,8 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
             <div><span className="sectionKicker">EXPLORE</span><h2>What are you looking for?</h2><div className="muted small">Start with a category and discover what’s worth considering.</div></div>
             <Link className="viewAll" href="/products">All products <ChevronRight size={15}/></Link>
           </div>
-          <CategoryRail categories={categoryList} />\n     </section>
+          <CategoryRail categories={categoryList} />
+        </section>
 
         <section className="section picksSection">
           <div className="sectionhead">
