@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { ArrowUpRight, Check, X, ArrowRight } from 'lucide-react'
 import { PageShell } from '@/components/site'
 import AffiliateDisclosure from '@/components/affiliate-disclosure'
+import ExpandableTitle from '@/components/expandable-title'
+import { PickButton } from '@/components/pick-button'
 import { supabaseServer } from '@/lib/supabase-server'
 import { SITE_URL } from '@/lib/config'
 
@@ -61,7 +63,11 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
 
   const displayTitle = product.name.length > 82 ? product.name.slice(0, 82).replace(/\s+\S*$/, '') + '…' : product.name
 
-  return <PageShell title={displayTitle} kicker={product.store || 'PRODUCT PICK'} compactHero>
+  return <PageShell title="" kicker="" compactHero>
+    <section className="productTitleHero">
+      <div className="eyebrow">{product.store || 'PRODUCT PICK'}</div>
+      <ExpandableTitle fullTitle={product.name} displayTitle={displayTitle} />
+    </section>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
     <Link href="/products" className="backhome">← Back to discovery</Link>
 
@@ -75,8 +81,8 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
         {product.price != null && <div className="detailprice">₹{Number(product.price).toLocaleString('en-IN')}{product.old_price != null && <del>₹{Number(product.old_price).toLocaleString('en-IN')}</del>}</div>}
         <p className="lead">{product.short_description || 'A product selected for its practical value, features and overall usefulness.'}</p>
         {product.why_picked && <div className="editorial"><div className="eyebrow">WHY WE PICKED IT</div><p>{product.why_picked}</p></div>}
-        <Link className="btn primary buy" href={'/go/' + product.slug}>Check latest price <ArrowUpRight size={17}/></Link>
-        <p className="muted micro">Prices and availability can change on the retailer’s website.</p>
+        <div className="buyRow"><Link className="btn primary buy" href={'/go/' + product.slug}>Check latest price <ArrowUpRight size={17}/></Link><PickButton product={{id:product.id,slug:product.slug,name:product.name,image_url:product.image_url,price:product.price,store:product.store}} /></div>
+        <p className="muted micro">Save it to your cart while you compare. Purchase still happens at the retailer.</p>
       </div>
     </section>
 
@@ -103,6 +109,6 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
       <Link className="textlink" href="/products">Explore more picks <ArrowRight size={15}/></Link>
     </section>
 
-    <section className="researchNext"><div className="eyebrow">CONTINUE YOUR RESEARCH</div><h2>Buying better is usually about the comparison.</h2><p className="muted">Before purchasing, use AYUSHPICKS’s practical guides to check the trade-offs, retailer details and questions worth asking.</p><div className="researchLinks"><Link href="/guides/how-to-compare-products-online">How to compare products <ArrowRight size={14}/></Link><Link href="/guides/how-to-build-a-useful-product-shortlist">Build a useful shortlist <ArrowRight size={14}/></Link><Link href="/guides/how-to-choose-products-worth-buying">Choose products worth buying <ArrowRight size={14}/></Link></div></section>\n\n    <AffiliateDisclosure />
+    <AffiliateDisclosure />
   </PageShell>
 }
