@@ -59,7 +59,7 @@ export function Footer() {
           <p className="muted small">Independent product discovery for everyday buying decisions.</p>
         </div>
         <div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Discover</Link><Link href="/guides">Guides</Link></div>
-        <div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div>
+        <div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link><a href="https://www.instagram.com/ayushpicks" target="_blank" rel="noopener noreferrer">Instagram</a></div>
         <div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div>
       </div>
       <div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div>
