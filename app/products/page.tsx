@@ -27,7 +27,7 @@ export default async function Products({ searchParams }: { searchParams?: Promis
   const productList = products || []
   const categoryList = categories || []
   const selectedCategory = categoryList.find((c: any) => c.id === category)
-  const heading = selectedCategory ? selectedCategory.name : q ? `Results for “${q}”` : 'Discover products'
+
 
   return (
     <PageShell title="" kicker="" compactHero>
@@ -35,14 +35,9 @@ export default async function Products({ searchParams }: { searchParams?: Promis
         <div className="discoveryHeroTop">
           <div>
             <div className="eyebrow"><Sparkles size={13}/> AYUSHPICKS DISCOVERY</div>
-            <h1>{heading}</h1>
-            <p>
-              {selectedCategory
-                ? `A focused selection of ${selectedCategory.name.toLowerCase()} products worth considering.`
-                : q
-                  ? 'Products matching your search, curated for a clearer buying decision.'
-                  : 'A focused collection of products worth understanding before you buy.'}
-            </p>
+            <h1>Discover products</h1>
+            <p>{q ? 'Products matching your search, curated for a clearer buying decision.' : 'A focused collection of products worth understanding before you buy.'}</p>
+            {selectedCategory && <div className="selectedCategoryPill"><span>{({Accessories:'👜',Beauty:'✨',Electronics:'⚡',Fashion:'👕',Gaming:'🎮',Home:'🏠',Kitchen:'🍳',Other:'✦'} as Record<string,string>)[selectedCategory.name] || '✦'}</span>{selectedCategory.name}</div>}
           </div>
         </div>
 
