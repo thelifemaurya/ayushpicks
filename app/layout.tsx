@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   title: { default: 'AYUSHPICKS — Discover better. Decide smarter.', template: '%s | AYUSHPICKS' },
   description: 'AYUSHPICKS helps you discover, understand, compare, and choose products worth considering before you buy.',
   applicationName: 'AYUSHPICKS',
-  icons: { icon: [{ url: '/ksnatic-favicon.png', type: 'image/png' }], shortcut: '/ksnatic-favicon.png', apple: '/ksnatic-favicon.png' },
   authors: [{ name: 'Ayush Mourya' }],
   creator: 'AYUSHPICKS',
   keywords: ['product discovery','product recommendations','buying guides','best products','Amazon India'],
