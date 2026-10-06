@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowUpRight, Menu, Search, Sparkles } from 'lucide-react'
+import { ArrowUpRight, Home, Menu, Search, Sparkles, Compass, BookOpen } from 'lucide-react'
 
 type Product = {
   id: string
@@ -20,6 +20,19 @@ function Brand() {
 export function Header() {
   return (
     <header className="nav">
+      <details className="mobileMenu">
+        <summary aria-label="Open navigation menu"><Menu size={20}/></summary>
+        <div className="mobileMenuPanel">
+          <div className="mobileMenuTitle"><span>AYUSHPICKS</span><small>Explore the site</small></div>
+          <form className="mobileSearch" action="/products" role="search">
+            <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products…" />
+          </form>
+          <Link href="/">Home <ArrowUpRight size={14}/></Link>
+          <Link href="/products">Discover <ArrowUpRight size={14}/></Link>
+          <Link href="/guides">Guides <ArrowUpRight size={14}/></Link>
+          <Link href="/about">About <ArrowUpRight size={14}/></Link>
+        </div>
+      </details>
       <Link className="brand" href="/" aria-label="AYUSHPICKS home"><Brand /></Link>
       <form className="navSearch" action="/products" role="search">
         <Search size={16} aria-hidden="true" />
@@ -32,18 +45,6 @@ export function Header() {
       </nav>
       <div className="navActions">
         <Link className="btn navExplore" href="/products">Explore <ArrowUpRight size={15}/></Link>
-        <details className="mobileMenu">
-          <summary aria-label="Open navigation menu"><Menu size={20}/></summary>
-          <div className="mobileMenuPanel">
-            <form className="mobileSearch" action="/products" role="search">
-              <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products…" />
-            </form>
-            <Link href="/products">Discover</Link>
-            <Link href="/guides">Guides</Link>
-            <Link href="/about">About</Link>
-            <Link className="btn primary" href="/products">Explore picks</Link>
-          </div>
-        </details>
       </div>
     </header>
   )
@@ -63,6 +64,12 @@ export function Footer() {
         <div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div>
       </div>
       <div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div>
+      <nav className="mobileBottomNav" aria-label="Mobile navigation">
+        <Link href="/" className="mobileBottomItem"><Home size={18}/><span>Home</span></Link>
+        <Link href="/products" className="mobileBottomItem"><Search size={18}/><span>Search</span></Link>
+        <Link href="/products" className="mobileBottomItem"><Compass size={18}/><span>Picks</span></Link>
+        <Link href="/guides" className="mobileBottomItem"><BookOpen size={18}/><span>Guides</span></Link>
+      </nav>
     </footer>
   )
 }
@@ -94,10 +101,12 @@ export function PageShell({ title, kicker, children, compactHero = false }: { ti
     <>
       <div className="container">
         <Header />
-        <section className={compactHero ? "pagehero productPageHero" : "pagehero"} style={compactHero ? { paddingTop: 34, paddingBottom: 18 } : undefined}>
-          {kicker && <div className="eyebrow">{kicker}</div>}
-          <h1 style={compactHero ? { fontSize: 'clamp(38px, 5vw, 58px)', marginTop: 14, marginBottom: 10 } : undefined}>{title}</h1>
-        </section>
+        {(kicker || title) && (
+          <section className={compactHero ? "pagehero productPageHero" : "pagehero"} style={compactHero ? { paddingTop: 18, paddingBottom: 8 } : undefined}>
+            {kicker && <div className="eyebrow">{kicker}</div>}
+            {title && <h1 style={compactHero ? { fontSize: 'clamp(38px, 5vw, 58px)', marginTop: 14, marginBottom: 10 } : undefined}>{title}</h1>}
+          </section>
+        )}
         {children}
         <Footer />
       </div>
