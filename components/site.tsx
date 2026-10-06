@@ -31,7 +31,6 @@ export function Header() {
           </form>
           <Link href="/">Home <ArrowUpRight size={14}/></Link>
           <Link href="/products">Discover <ArrowUpRight size={14}/></Link>
-          <Link href="/guides">Guides <ArrowUpRight size={14}/></Link>
           <Link href="/about">About <ArrowUpRight size={14}/></Link>
         </div>
       </details>
