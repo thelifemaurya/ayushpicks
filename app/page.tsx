@@ -18,6 +18,10 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
   const categoryList = categories || []
   const featuredProduct = productList[0]
   const featuredCategories = categoryList.slice(0, 6)
+  const categoryIcon = (name: string) => ({
+    Accessories: '👜', Beauty: '✨', Electronics: '⚡', Fashion: '👕',
+    Gaming: '🎮', Home: '🏠', Kitchen: '🍳', Other: '✦'
+  } as Record<string,string>)[name] || '✦'
 
   return (
     <main>
@@ -27,7 +31,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
         <div className="categoryBar" aria-label="Product categories">
           <Link className="categoryActive" href="/products">All picks</Link>
           {categoryList.map((category: any) => (
-            <Link key={category.id} href={`/products?category=${encodeURIComponent(category.id)}`}>{category.name}</Link>
+            <Link key={category.id} href={`/products?category=${encodeURIComponent(category.id)}`}><span aria-hidden="true">{categoryIcon(category.name)}</span>{category.name}</Link>
           ))}
         </div>
 
@@ -68,6 +72,30 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           </div>
         </section>
 
+        <section className="homeSearchSection" aria-label="Search AYUSHPICKS">
+          <form className="homeSearch" action="/products" role="search">
+            <Search size={20} aria-hidden="true" />
+            <input name="q" placeholder="Search products, brands or categories…" aria-label="Search products, brands or categories" />
+            <button aria-label="Search"><ArrowRight size={18}/></button>
+          </form>
+          <div className="homeSearchHint">Try “gaming”, “beauty”, “under ₹1000”, or a product name.</div>
+        </section>
+
+        {featuredProduct && (
+          <section className="highlightBanner" aria-label="Latest highlight">
+            <div className="highlightCopy">
+              <span className="highlightKicker"><Sparkles size={13}/> NEW ON AYUSHPICKS</span>
+              <h2>A fresh pick worth a closer look.</h2>
+              <p>{featuredProduct.short_description || 'A product selected for a clearer buying decision — with the details that actually matter.'}</p>
+              <Link className="highlightLink" href={`/products/${featuredProduct.slug}`}>Explore the highlight <ArrowRight size={15}/></Link>
+            </div>
+            <Link className="highlightProduct" href={`/products/${featuredProduct.slug}`}>
+              {featuredProduct.image_url && <img src={featuredProduct.image_url} alt="" />}
+              <span>AYUSHPICKS PICK</span>
+            </Link>
+          </section>
+        )}
+
         <section className="quickStrip premiumQuickStrip" aria-label="How AYUSHPICKS works">
           <div><Search size={19}/><b>01 · Discover</b><span>Find products worth a closer look.</span></div>
           <div><BadgeCheck size={19}/><b>02 · Compare</b><span>Understand the differences and trade-offs.</span></div>
@@ -83,7 +111,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           <div className="categoryTiles">
             {featuredCategories.map((category: any, index: number) => (
               <Link className="categoryTile" key={category.id} href={`/products?category=${encodeURIComponent(category.id)}`}>
-                <span>0{index + 1}</span><strong>{category.name}</strong><ChevronRight size={16}/>
+                <span className="categoryTileIcon" aria-hidden="true">{categoryIcon(category.name)}</span><div><small>0{index + 1}</small><strong>{category.name}</strong></div><ChevronRight size={16}/>
               </Link>
             ))}
           </div>
