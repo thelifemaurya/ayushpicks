@@ -79,9 +79,9 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           <div>
             <span className="sectionKicker">AYUSHPICKS SPOTLIGHT</span>
             <h2>Worth seeing right now.</h2>
-            <p>Selected picks, rotating automatically. Swipe, tap, or use the controls to explore.</p>
+            <p>A moving shortlist of picks worth a closer look. Swipe or use the controls to explore.</p>
           </div>
-          <span className="spotlightIntroMeta">01—04 · AUTO</span>
+          <span className="spotlightIntroMeta">01—04 · SELECTED</span>
         </section>
         <HomeSpotlight slides={spotlightSlides} />
 
