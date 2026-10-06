@@ -10,6 +10,8 @@ export default function ProductFilters({ categories }: { categories: any[] }) {
   const ref=useRef<HTMLDivElement>(null)
   const active=params.get('category')||'', q=params.get('q')||''
   const iconFor=(name:string)=>({Accessories:'👜',Beauty:'✦',Electronics:'◈',Fashion:'◌',Gaming:'⌁',Home:'⌂',Kitchen:'◒',Other:'＋'} as Record<string,string>)[name]||'✦'
+  const activeName = categories.find((c:any)=>c.id===active)?.name || 'Selected'
+  const activeLabel = active ? 'Category: ' + activeName : q ? 'Search: “' + q + '”' : ''
   function selectCategory(category:string){
     const next=new URLSearchParams(params.toString())
     category?next.set('category',category):next.delete('category')
@@ -24,6 +26,6 @@ export default function ProductFilters({ categories }: { categories: any[] }) {
       </div>
       <button type="button" className="filterNext" onClick={()=>ref.current?.scrollBy({left:220,behavior:'smooth'})} aria-label="Scroll categories"><ChevronRight size={17}/></button>
     </div>
-    {(active||q)&&<div className="activefilter"><span>{active?`Category: ${categories.find((c:any)=>c.id===active)?.name||'Selected'`:`Search: “${q}”`}</span><Link href="/products">Clear</Link></div>}
+    {activeLabel&&<div className="activefilter"><span>{activeLabel}</span><Link href="/products">Clear</Link></div>}
   </div>
 }
