@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, ArrowUpRight, Sparkles } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ArrowUpRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 type Slide = { id:string; slug:string; name:string; image_url?:string|null; price?:number|null; short_description?:string|null; store?:string|null }
