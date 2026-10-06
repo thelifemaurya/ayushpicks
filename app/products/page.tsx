@@ -34,7 +34,7 @@ export default async function Products({ searchParams }: { searchParams?: Promis
       <section className="discoveryHero">
         <div className="discoveryHeroTop">
           <div>
-            <div className="eyebrow"><Sparkles size={13}/> KSNATIC DISCOVERY</div>
+            <div className="eyebrow"><Sparkles size={13}/> AYUSHPICKS DISCOVERY</div>
             <h1>{heading}</h1>
             <p>
               {selectedCategory
@@ -87,9 +87,9 @@ export default async function Products({ searchParams }: { searchParams?: Promis
 
       <section className="discoveryNote">
         <div>
-          <span className="sectionKicker">HOW KSNATIC WORKS</span>
+          <span className="sectionKicker">HOW AYUSHPICKS WORKS</span>
           <h2>Discovery first. Decision second.</h2>
-          <p>We keep the shortlist focused so you can understand what a product does, where it fits, and what to consider before leaving KSNATIC to buy.</p>
+          <p>We keep the shortlist focused so you can understand what a product does, where it fits, and what to consider before leaving AYUSHPICKS to buy.</p>
         </div>
         <Link className="textlink" href="/about">Learn about our approach <ArrowRight size={15}/></Link>
       </section>
