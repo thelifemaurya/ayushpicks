@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ArrowUpRight, Home, Menu, Search, Sparkles } from 'lucide-react'
 import CartLink from '@/components/cart-link'
 import { PickButton } from '@/components/pick-button'
+import MobileBottomNav from '@/components/mobile-bottom-nav'
 
 type Product = {
   id: string
@@ -64,11 +65,7 @@ export function Footer() {
         <div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div>
       </div>
       <div className="footerbottom">© {new Date().getFullYear()} AYUSHPICKS. Product discovery and recommendations by Ayush Mourya.</div>
-      <nav className="mobileBottomNav" aria-label="Mobile navigation">
-        <Link href="/" className="mobileBottomItem"><Home size={18}/><span>Home</span></Link>
-        <Link href="/products" className="mobileBottomItem"><Search size={18}/><span>Search</span></Link>
-        <CartLink mobile />
-      </nav>
+      <MobileBottomNav />
     </footer>
   )
 }
