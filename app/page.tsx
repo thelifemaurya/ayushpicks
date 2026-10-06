@@ -3,6 +3,8 @@ import { ArrowRight, BadgeCheck, ChevronRight, Search, ShieldCheck, Sparkles, St
 import { redirect } from 'next/navigation'
 import { supabaseServer } from '@/lib/supabase-server'
 import { Header, Footer, ProductCard } from '@/components/site'
+import CategoryRail from '@/components/category-rail'
+import HomeSpotlight from '@/components/home-spotlight'
 
 export default async function Home({ searchParams }: { searchParams?: Promise<{ code?: string; next?: string }> }) {
   const params = searchParams ? await searchParams : {}
@@ -28,21 +30,14 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
       <div className="container">
         <Header />
 
-        <div className="categoryBar" aria-label="Product categories">
-          <Link className="categoryActive" href="/products">All picks</Link>
-          {categoryList.map((category: any) => (
-            <Link key={category.id} href={`/products?category=${encodeURIComponent(category.id)}`}><span aria-hidden="true">{categoryIcon(category.name)}</span>{category.name}</Link>
-          ))}
-        </div>
-
-        <section className="homeHero ayushpicksHero">
+        <CategoryRail categories={categoryList} />\n\n        <section className="homeHero ayushpicksHero">
           <div className="heroCopy">
             <div className="eyebrow"><Sparkles size={13}/> INDEPENDENT PRODUCT DISCOVERY</div>
             <h1>Find what’s worth it.<br/><span>Skip the noise.</span></h1>
             <p>AYUSHPICKS helps you discover, understand, compare, and choose products before you buy — with useful details, honest context, and clear recommendations.</p>
             <div className="heroActions">
               <Link className="btn primary big" href="/products">Explore picks <ArrowRight size={17}/></Link>
-              <Link className="textlink" href="/guides">How we choose <ChevronRight size={15}/></Link>
+              <Link className="textlink" href="/about">How we choose <ChevronRight size={15}/></Link>
             </div>
             <div className="heroTrust">
               <span><BadgeCheck size={15}/> Curated picks</span>
@@ -108,14 +103,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
             <div><span className="sectionKicker">EXPLORE</span><h2>What are you looking for?</h2><div className="muted small">Start with a category and discover what’s worth considering.</div></div>
             <Link className="viewAll" href="/products">All products <ChevronRight size={15}/></Link>
           </div>
-          <div className="categoryTiles">
-            {featuredCategories.map((category: any, index: number) => (
-              <Link className="categoryTile" key={category.id} href={`/products?category=${encodeURIComponent(category.id)}`}>
-                <span className="categoryTileIcon" aria-hidden="true">{categoryIcon(category.name)}</span><div><small>0{index + 1}</small><strong>{category.name}</strong></div><ChevronRight size={16}/>
-              </Link>
-            ))}
-          </div>
-        </section>
+          <CategoryRail categories={categoryList} />\n     </section>
 
         <section className="section picksSection">
           <div className="sectionhead">
@@ -136,11 +124,6 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
             <div><b>Clear, not complicated.</b><span>Pros, limitations and who it suits.</span></div>
             <div><b>Decision-first.</b><span>Research before you reach the store.</span></div>
           </div>
-        </section>
-
-        <section className="guideBanner">
-          <div><span className="sectionKicker">BUYING GUIDES</span><h2>Don’t just buy.<br/>Know what you’re buying.</h2><p>Simple, practical guides for choosing products without getting lost in hundreds of listings.</p></div>
-          <Link className="btn primary" href="/guides">Explore guides <ArrowRight size={16}/></Link>
         </section>
 
         <Footer />
