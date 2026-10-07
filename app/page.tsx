@@ -27,15 +27,13 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
       <div className="container">
         <Header />
 
-        <CategoryRail categories={categoryList} />
-
         <section className="homeHero ayushpicksHero">
           <div className="heroCopy">
             <div className="eyebrow">INDEPENDENT PRODUCT DISCOVERY</div>
             <h1>Find what’s worth it.<br/><span>Skip the noise.</span></h1>
             <p>AYUSHPICKS helps you discover, understand, compare, and choose products before you buy — with useful details, honest context, and clear recommendations.</p>
             <div className="heroActions">
-              <Link className="btn primary big" href="/products">Explore picks <ArrowRight size={17}/></Link>
+              <Link className="btn primary big" href="/products">Explore products <ArrowRight size={17}/></Link>
               <Link className="textlink" href="/about">How we choose <ChevronRight size={15}/></Link>
             </div>
             <div className="heroTrust">
@@ -66,22 +64,15 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           </div>
         </section>
 
-        <section className="homeSearchSection" aria-label="Search AYUSHPICKS">
-          <form className="homeSearch" action="/products" role="search">
-            <Search size={20} aria-hidden="true" />
-            <input name="q" placeholder="Search products, brands or categories…" aria-label="Search products, brands or categories" />
-            <button aria-label="Search"><ArrowRight size={18}/></button>
-          </form>
-          <div className="homeSearchHint">Try “gaming”, “beauty”, “under ₹1000”, or a product name.</div>
-        </section>
+n>
 
         <section className="spotlightIntro">
           <div>
             <span className="sectionKicker">AYUSHPICKS SPOTLIGHT</span>
             <h2>Worth seeing right now.</h2>
-            <p>A moving shortlist of picks worth a closer look. Swipe or use the controls to explore.</p>
+            <p>A small, focused set of products selected for the homepage.</p>
           </div>
-          <span className="spotlightIntroMeta">01—04 · SELECTED</span>
+          <span className="spotlightIntroMeta"></span>
         </section>
         <HomeSpotlight slides={spotlightSlides} />
 
