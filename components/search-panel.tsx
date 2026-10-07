@@ -25,12 +25,20 @@ function distance(a:string,b:string){
   return prev[bb.length]
 }
 
+function itemScore(query:string,item:SearchItem){
+  const q=normalize(query)
+  const name=normalize(item.name)
+  if(!q) return 99
+  if(name.includes(q)) return 0
+  return Math.min(distance(q,name),...name.split(' ').map(word=>distance(q,word)))
+}
+
 export default function SearchPanel({ items }: { items:SearchItem[] }){
   const [value,setValue]=useState('')
   const clean=normalize(value)
   const suggestions=useMemo(()=>{
     if(!clean) return items.slice(0,5)
-    const scored=items.map(item=>({item,score:distance(clean,item.name)})).sort((a,b)=>a.score-b.score)
+    const scored=items.map(item=>({item,score:itemScore(clean,item)})).sort((a,b)=>a.score-b.score)
     const direct=items.filter(item=>normalize(item.name).includes(clean)).slice(0,5)
     const merged=[...direct,...scored.filter(x=>!direct.some(d=>d.slug===x.item.slug)).map(x=>x.item)]
     return merged.slice(0,6)
