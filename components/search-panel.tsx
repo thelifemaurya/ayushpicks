@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ArrowRight, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-type SearchItem = { name:string; slug:string; category?:string|null }
+type SearchItem = { name:string; slug:string; category?:string|null; href?:string }
 
 function normalize(value:string){
   return value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim()
@@ -53,7 +53,7 @@ export default function SearchPanel({ items }: { items:SearchItem[] }){
     <div className="searchSuggestions" aria-label="Search suggestions">
       <span className="searchSuggestionsLabel">{clean ? 'SUGGESTIONS' : 'TRY SEARCHING'}</span>
       <div className="searchSuggestionList">
-        {suggestions.map(item=><Link key={item.slug} href={'/products?q='+encodeURIComponent(item.name)}>
+        {suggestions.map(item=><Link key={item.slug} href={item.href || '/products?q='+encodeURIComponent(item.name)}>
           <span><strong>{item.name}</strong>{item.category && <small>{item.category}</small>}</span><ArrowRight size={14}/>
         </Link>)}
       </div>
