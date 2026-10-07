@@ -916,3 +916,7 @@ body{background:#f7f5ef!important;font-family:'DM Sans',system-ui,sans-serif!imp
 @media(min-width:901px){
   .mobileMenu{display:none!important}
 }
+
+.cartShowMore{display:inline-flex;align-items:center;border:0;border-bottom:1px solid currentColor;background:transparent;color:var(--text);padding:0 0 2px;margin:9px 0 0;font-size:10px;font-weight:750;cursor:pointer}
+.cartInfo .cartShowMore+ b{display:block;margin-top:10px}
+@media(max-width:760px){.cartInfo h2{overflow-wrap:anywhere}.cartShowMore{font-size:9px}}
