@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowUpRight, Home, Menu, Search, Sparkles } from 'lucide-react'
+import { ArrowUpRight, Menu, Search } from 'lucide-react'
 import CartLink from '@/components/cart-link'
 import { PickButton } from '@/components/pick-button'
 import MobileBottomNav from '@/components/mobile-bottom-nav'
@@ -31,7 +31,8 @@ export function Header() {
             <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products…" />
           </form>
           <Link href="/">Home <ArrowUpRight size={14}/></Link>
-          <Link href="/products">Discover <ArrowUpRight size={14}/></Link>
+          <Link href="/search">Search <ArrowUpRight size={14}/></Link>
+          <Link href="/categories">Categories <ArrowUpRight size={14}/></Link>
           <Link href="/about">About <ArrowUpRight size={14}/></Link>
         </div>
       </details>
@@ -41,7 +42,8 @@ export function Header() {
         <input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
       </form>
       <nav className="navlinks" aria-label="Primary navigation">
-        <Link href="/products">Discover</Link>
+        <Link href="/search">Search</Link>
+        <Link href="/categories">Categories</Link>
         <Link href="/about">About</Link>
       </nav>
       <div className="navActions">
@@ -60,7 +62,7 @@ export function Footer() {
           <p className="muted small">Discover better. Decide smarter.</p>
           <p className="muted small">Independent product discovery for everyday buying decisions.</p>
         </div>
-        <div><strong>Explore</strong><Link href="/">Home</Link><Link href="/products">Discover</Link><Link href="/cart">Cart</Link></div>
+        <div><strong>Explore</strong><Link href="/">Home</Link><Link href="/search">Search</Link><Link href="/categories">Categories</Link><Link href="/cart">Cart</Link></div>
         <div><strong>Company</strong><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link><a href="https://www.instagram.com/ayushpicks" target="_blank" rel="noopener noreferrer">Instagram</a></div>
         <div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookie-policy">Cookie policy</Link><Link href="/affiliate-disclosure">Affiliate disclosure</Link></div>
       </div>
@@ -78,7 +80,7 @@ export function ProductCard({ product, compact = false }: { product: Product; co
       <Link href={`/products/${product.slug}`} aria-label={`View ${product.name}`}>
         <div className="image productImage">
           {product.image_url ? <img src={product.image_url} alt={product.name} loading="lazy" referrerPolicy="no-referrer" /> : <span>No image</span>}
-          {product.featured && <span className="productBadge"><Sparkles size={10}/> AYUSHPICKS PICK</span>}
+          {product.featured && <span className="productBadge">AYUSHPICKS PICK</span>}
         </div>
         <div className="cardbody">
           <div className="tag">{product.store || 'Worth considering'}</div>
