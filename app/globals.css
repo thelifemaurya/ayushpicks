@@ -920,3 +920,32 @@ body{background:#f7f5ef!important;font-family:'DM Sans',system-ui,sans-serif!imp
 .cartShowMore{display:inline-flex;align-items:center;border:0;border-bottom:1px solid currentColor;background:transparent;color:var(--text);padding:0 0 2px;margin:9px 0 0;font-size:10px;font-weight:750;cursor:pointer}
 .cartInfo .cartShowMore+ b{display:block;margin-top:10px}
 @media(max-width:760px){.cartInfo h2{overflow-wrap:anywhere}.cartShowMore{font-size:9px}}
+
+/* Dedicated search + category navigation */
+.navlinks{gap:20px}
+.standaloneSearch{max-width:920px;margin:0 auto 80px}
+.standaloneSearchForm{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:12px;border:1px solid var(--line);background:var(--panel);padding:9px 10px 9px 16px;box-shadow:0 12px 34px rgba(23,23,21,.06)}
+.standaloneSearchForm input{border:0;background:transparent;outline:0;font:500 16px 'DM Sans';color:var(--text);min-width:0}.standaloneSearchForm input::placeholder{color:#8c877e}
+.searchClear{border:0;background:transparent;color:var(--muted);display:grid;place-items:center;padding:6px;cursor:pointer}.searchSubmit{white-space:nowrap}
+.searchSuggestions{margin-top:20px;border-top:1px solid var(--line)}.searchSuggestionsLabel{display:block;font:500 9px var(--mono-font);letter-spacing:.12em;color:var(--muted);padding:15px 0 8px}
+.searchSuggestionList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line)}.searchSuggestionList a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px;background:var(--bg);color:var(--text);text-decoration:none;transition:background .18s}.searchSuggestionList a:hover{background:#efebe2}
+.searchSuggestionList a span{display:grid;gap:4px;min-width:0}.searchSuggestionList strong{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.searchSuggestionList small{font-size:9px;color:var(--muted)}
+.searchCorrection{margin-top:12px;font-size:11px;color:var(--muted)}.searchCorrection button{border:0;background:transparent;color:var(--text);font-weight:750;padding:0;border-bottom:1px solid currentColor;cursor:pointer}
+.searchPageHero,.categoriesPageHero{padding:52px 0 28px;max-width:850px}.searchPageHero h1,.categoriesPageHero h1{font:700 clamp(50px,8vw,92px)/.9 'DM Sans';letter-spacing:-.09em;margin:12px 0 16px}.searchPageHero p,.categoriesPageHero p{max-width:680px;color:var(--muted);font-size:14px;line-height:1.75}
+.categoryDirectory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line);margin-bottom:70px}.categoryDirectoryItem{min-height:118px;display:grid;grid-template-columns:70px minmax(0,1fr) auto;align-items:center;gap:16px;padding:20px;background:var(--bg);color:var(--text);text-decoration:none;transition:background .18s,transform .18s}.categoryDirectoryItem:hover{background:#efebe2;transform:translateY(-1px)}
+.categoryDirectoryIcon{width:52px;height:52px;border:1px solid var(--line);display:grid;place-items:center;font-size:21px;background:#ece8df}.categoryDirectoryItem.all .categoryDirectoryIcon{font:700 11px var(--mono-font);letter-spacing:.04em}.categoryDirectoryItem span:nth-child(2){display:grid;gap:5px}.categoryDirectoryItem strong{font-size:15px;letter-spacing:-.02em}.categoryDirectoryItem small{font-size:10px;color:var(--muted)}
+.categorySearchBlock{display:grid;grid-template-columns:minmax(0,.8fr) minmax(320px,1.2fr);gap:36px;align-items:center;border-top:1px solid var(--line);padding:40px 0 90px}.categorySearchBlock h2{font:700 clamp(30px,4vw,48px)/1 'DM Sans';letter-spacing:-.065em;margin:8px 0 10px}.categorySearchBlock p{color:var(--muted);font-size:12px;line-height:1.7;max-width:560px}.categorySearchForm{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;border:1px solid var(--line);padding:9px 10px 9px 14px;background:var(--panel)}.categorySearchForm input{border:0;background:transparent;outline:0;font-size:13px;min-width:0}.categorySearchForm svg{color:var(--muted)}
+/* Pros / limitations: clear positive and negative visual language */
+.detailgrid .infoPanel{border-top:2px solid var(--line);padding-top:16px}.detailgrid .infoPanel:first-child{border-top-color:#3f8b5b}.detailgrid .infoPanel:last-child{border-top-color:#c94a4a}.infoPanel h2{display:flex;align-items:center;gap:8px}.detailgrid .infoPanel:first-child h2:before{content:"✓";color:#3f8b5b;font-weight:900;font-size:14px}.detailgrid .infoPanel:last-child h2:before{content:"×";color:#c94a4a;font-weight:900;font-size:18px}
+.bullet{border-left:2px solid #d9eadf;background:linear-gradient(90deg,#f1f8f3,transparent);padding:11px 12px;margin:6px 0;display:flex;gap:9px;align-items:flex-start}.bullet svg{color:#3f8b5b;flex:0 0 auto;margin-top:1px}.negativeBullet{border-left-color:#f0d4d4;background:linear-gradient(90deg,#fbf0f0,transparent)}.negativeBullet svg{color:#c94a4a}
+/* Four-tile mobile navigation: Home / Search / Categories / Cart */
+@media(max-width:760px){
+ .mobileBottomNav{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:2px!important;padding:4px 6px!important}
+ .mobileBottomItem{font-size:9px!important}
+ .mobileBottomItem .cartCount{left:calc(50% + 6px)!important}
+ .standaloneSearch{margin-bottom:55px}.standaloneSearchForm{grid-template-columns:auto minmax(0,1fr) auto;padding:9px 10px 9px 12px}.searchSubmit{grid-column:1/-1;width:100%;justify-content:center}.standaloneSearchForm input{font-size:14px}.searchSuggestionList{grid-template-columns:1fr}
+ .searchPageHero,.categoriesPageHero{padding:38px 0 22px}.searchPageHero h1,.categoriesPageHero h1{font-size:clamp(48px,14vw,68px)}
+ .categoryDirectory{grid-template-columns:1fr;margin-bottom:50px}.categoryDirectoryItem{min-height:92px;grid-template-columns:56px minmax(0,1fr) auto;padding:14px}.categoryDirectoryIcon{width:46px;height:46px}
+ .categorySearchBlock{grid-template-columns:1fr;gap:22px;padding:30px 0 65px}.categorySearchForm{grid-template-columns:auto minmax(0,1fr)}.categorySearchForm .btn{grid-column:1/-1;width:100%;justify-content:center}
+}
+@media(max-width:430px){.categoryDirectoryItem strong{font-size:14px}.categoryDirectoryItem small{font-size:9px}}
