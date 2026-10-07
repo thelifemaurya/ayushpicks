@@ -45,7 +45,7 @@ export default function SearchPanel({ items }: { items:SearchItem[] }){
   },[clean,items])
   const nearest=useMemo(()=>{
     if(!clean) return null
-    const scored=items.map(item=>({item,score:distance(clean,item.name)})).sort((a,b)=>a.score-b.score)
+    const scored=items.map(item=>({item,score:itemScore(clean,item)})).sort((a,b)=>a.score-b.score)
     const best=scored[0]
     return best && best.score <= Math.max(2,Math.ceil(clean.length*.34)) ? best.item : null
   },[clean,items])
