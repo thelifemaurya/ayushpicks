@@ -64,8 +64,6 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           </div>
         </section>
 
-n>
-
         <section className="spotlightIntro">
           <div>
             <span className="sectionKicker">CURATED SPOTLIGHT</span>
