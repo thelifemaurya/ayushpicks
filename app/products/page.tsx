@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, SlidersHorizontal, Sparkles } from 'lucide-react'
+import { ArrowRight, SlidersHorizontal } from 'lucide-react'
 import { ProductCard, PageShell } from '@/components/site'
 import ProductFilters from '@/components/product-filters-v2'
 import { supabaseServer } from '@/lib/supabase-server'
@@ -34,7 +34,7 @@ export default async function Products({ searchParams }: { searchParams?: Promis
       <section className="discoveryHero">
         <div className="discoveryHeroTop">
           <div>
-            <div className="eyebrow"><Sparkles size={13}/> AYUSHPICKS DISCOVERY</div>
+            <div className="eyebrow">AYUSHPICKS DISCOVERY</div>
             <h1>Discover products</h1>
             <p>{q ? 'Products matching your search, curated for a clearer buying decision.' : 'A focused collection of products worth understanding before you buy.'}</p>
             {selectedCategory && <div className="selectedCategoryPill"><span>{({Accessories:'👜',Beauty:'✨',Electronics:'⚡',Fashion:'👕',Gaming:'🎮',Home:'🏠',Kitchen:'🍳',Other:'✦'} as Record<string,string>)[selectedCategory.name] || '✦'}</span>{selectedCategory.name}</div>}
