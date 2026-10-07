@@ -902,8 +902,8 @@ body{background:#f7f5ef!important;font-family:'DM Sans',system-ui,sans-serif!imp
   .container{width:calc(100% - 18px)}
   .nav{grid-template-columns:38px minmax(0,1fr) auto;gap:6px;height:66px}
   .mobileMenu,.mobileMenu summary{width:38px;min-width:38px;height:38px}
-  .brand{width:min(100%,166px)}
-  .brand>span{font-size:17px!important}
+  .brand{width:min(100%,184px)}
+  .brand>span{font-size:16px!important;letter-spacing:-.075em!important}
   .cartLink{font-size:10px}
   .cartLink .cartCount{min-width:16px;height:16px}
   .mobileBottomNav{height:62px!important}
