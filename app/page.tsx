@@ -68,12 +68,11 @@ n>
 
         <section className="spotlightIntro">
           <div>
-            <span className="sectionKicker">AYUSHPICKS SPOTLIGHT</span>
+            <span className="sectionKicker">CURATED SPOTLIGHT</span>
             <h2>Worth seeing right now.</h2>
             <p>A small, focused set of products selected for the homepage.</p>
           </div>
-          <span className="spotlightIntroMeta"></span>
-        </section>
+                  </section>
         <HomeSpotlight slides={spotlightSlides} />
 
         <section className="quickStrip premiumQuickStrip" aria-label="How AYUSHPICKS works">
