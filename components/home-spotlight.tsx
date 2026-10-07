@@ -30,10 +30,10 @@ export default function HomeSpotlight({ slides }: { slides: Slide[] }) {
 
   const startTimer = useCallback(() => {
     stopTimer()
-    if (items.length < 2) return
+    if (items.length < 2 || typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches) return
     timer.current = setInterval(() => {
       setIndex(current => current + 1 >= items.length ? 0 : current + 1)
-    }, 3200)
+    }, 6200)
   }, [items.length, stopTimer])
 
   useEffect(() => {
@@ -42,8 +42,11 @@ export default function HomeSpotlight({ slides }: { slides: Slide[] }) {
   }, [startTimer, stopTimer])
 
   const go = useCallback((next:number) => {
-    setIndex(Math.max(0, Math.min(items.length - 1, next)))
-  }, [items.length])
+    if (!items.length) return
+    setIndex((next + items.length) % items.length)
+    stopTimer()
+    window.setTimeout(startTimer, 900)
+  }, [items.length, startTimer, stopTimer])
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return
@@ -119,13 +122,13 @@ export default function HomeSpotlight({ slides }: { slides: Slide[] }) {
       </div>
 
       <div className="spotlightControls">
-        <button type="button" onClick={() => go(index - 1)} disabled={index === 0} aria-label="Previous spotlight"><ChevronLeft size={17}/></button>
+        <button type="button" onClick={() => go(index - 1)} aria-label="Previous spotlight"><ChevronLeft size={17}/></button>
         <div className="spotlightDots" aria-label="Spotlight slides">
           {items.map((item, i) => (
             <button key={item.id} type="button" className={i===index?'active':''} onClick={() => go(i)} aria-label={`Show slide ${i+1}`} />
           ))}
         </div>
-        <button type="button" onClick={() => go(index + 1)} disabled={index === items.length - 1} aria-label="Next spotlight"><ChevronRight size={17}/></button>
+        <button type="button" onClick={() => go(index + 1)} aria-label="Next spotlight"><ChevronRight size={17}/></button>
       </div>
     </section>
   )
