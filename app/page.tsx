@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, BadgeCheck, ChevronRight, Search, ShieldCheck, Star, Zap } from 'lucide-react'
+import { ArrowRight, BadgeCheck, ChevronRight, ShieldCheck, Star, Zap } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { supabaseServer } from '@/lib/supabase-server'
 import { Header, Footer, ProductCard } from '@/components/site'
