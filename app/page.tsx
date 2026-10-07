@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, BadgeCheck, ChevronRight, ShieldCheck, Star, Zap } from 'lucide-react'
+import { ArrowRight, BadgeCheck, ChevronRight, Search, ShieldCheck, Star, Zap } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { supabaseServer } from '@/lib/supabase-server'
 import { Header, Footer, ProductCard } from '@/components/site'
@@ -70,7 +70,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
             <h2>Worth seeing right now.</h2>
             <p>A small, focused set of products selected for the homepage.</p>
           </div>
-                  </section>
+        </section>
         <HomeSpotlight slides={spotlightSlides} />
 
         <section className="quickStrip premiumQuickStrip" aria-label="How AYUSHPICKS works">
