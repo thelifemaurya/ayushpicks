@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, BadgeCheck, ChevronRight, Search, ShieldCheck, Sparkles, Star, Zap } from 'lucide-react'
+import { ArrowRight, BadgeCheck, ChevronRight, Search, ShieldCheck, Star, Zap } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { supabaseServer } from '@/lib/supabase-server'
 import { Header, Footer, ProductCard } from '@/components/site'
@@ -31,7 +31,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
 
         <section className="homeHero ayushpicksHero">
           <div className="heroCopy">
-            <div className="eyebrow"><Sparkles size={13}/> INDEPENDENT PRODUCT DISCOVERY</div>
+            <div className="eyebrow">INDEPENDENT PRODUCT DISCOVERY</div>
             <h1>Find what’s worth it.<br/><span>Skip the noise.</span></h1>
             <p>AYUSHPICKS helps you discover, understand, compare, and choose products before you buy — with useful details, honest context, and clear recommendations.</p>
             <div className="heroActions">
