@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Search } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { PageShell } from '@/components/site'
 import { supabaseServer } from '@/lib/supabase-server'
 
@@ -20,9 +20,6 @@ export default async function Categories(){
       <Link href="/products" className="categoryDirectoryItem all"><span className="categoryDirectoryIcon">All</span><span><strong>All products</strong><small>Browse every published pick</small></span><ArrowRight size={17}/></Link>
       {categories.map((c:any)=><Link key={c.id} href={'/products?category='+encodeURIComponent(c.id)} className="categoryDirectoryItem"><span className="categoryDirectoryIcon">{icons[c.name]||'✦'}</span><span><strong>{c.name}</strong><small>Explore {c.name.toLowerCase()} picks</small></span><ArrowRight size={17}/></Link>)}
     </section>
-    <section className="categorySearchBlock">
-      <div><div className="eyebrow">SEARCH WITHIN THE COLLECTION</div><h2>Know what you’re looking for?</h2><p>Search by product name, brand or category. You can also use the dedicated Search page for quick suggestions and typo help.</p></div>
-      <form action="/products" className="categorySearchForm" role="search"><Search size={18}/><input name="q" placeholder="Search products…" aria-label="Search products"/><button className="btn primary" type="submit">Search <ArrowRight size={15}/></button></form>
-    </section>
+
   </PageShell>
 }
