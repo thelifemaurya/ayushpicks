@@ -27,10 +27,7 @@ export function Header() {
         <summary aria-label="Open navigation menu"><Menu size={20}/></summary>
         <div className="mobileMenuPanel">
           <div className="mobileMenuTitle"><span>AYUSHPICKS</span><small>Explore the site</small></div>
-          <form className="mobileSearch" action="/products" role="search">
-            <Search size={16}/><input name="q" aria-label="Search products" placeholder="Search products…" />
-          </form>
-          <Link href="/">Home <ArrowUpRight size={14}/></Link>
+         <Link href="/">Home <ArrowUpRight size={14}/></Link>
           <Link href="/search">Search <ArrowUpRight size={14}/></Link>
           <Link href="/categories">Categories <ArrowUpRight size={14}/></Link>
           <Link href="/about">About <ArrowUpRight size={14}/></Link>
