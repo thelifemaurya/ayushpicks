@@ -15,7 +15,6 @@ export default async function SearchPage(){
     ...(categories||[]).map((c:any)=>({name:c.name,slug:'category-'+c.id,category:'Category',href:'/products?category='+encodeURIComponent(c.id)})),
   ]
   return <PageShell title="" kicker="" compactHero>
-    <section className="searchPageHero"><div className="eyebrow">SEARCH AYUSHPICKS</div><h1>Find a product faster.</h1><p>Type a product, brand or category. Suggestions stay short and relevant, with a quick correction when a word is misspelled.</p></section>
-    <SearchPanel items={items}/>
+    <section className="searchOnlyPage"><SearchPanel items={items}/></section>
   </PageShell>
 }
