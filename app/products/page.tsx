@@ -16,7 +16,7 @@ export default async function Products({ searchParams }: { searchParams?: Promis
     .order('featured', { ascending: false })
     .order('created_at', { ascending: false })
 
-  if (q) query = query.ilike('name', `%${q}%`)
+  if (q) query = query.or(`name.ilike.%${q}%,short_description.ilike.%${q}%,store.ilike.%${q}%`)
   if (category) query = query.eq('category_id', category)
 
   const [{ data: products }, { data: categories }] = await Promise.all([
