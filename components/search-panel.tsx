@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Search, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ArrowRight, Clock3, Search, Trash2, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 
 type SearchItem = { name:string; slug:string; category?:string|null; href?:string }
 
@@ -35,6 +35,8 @@ function itemScore(query:string,item:SearchItem){
 
 export default function SearchPanel({ items }: { items:SearchItem[] }){
   const [value,setValue]=useState('')
+  const [history,setHistory]=useState<string[]>([])
+  useEffect(()=>{ try { setHistory(JSON.parse(localStorage.getItem('ayushpicks-search-history')||'[]')) } catch {} },[])
   const clean=normalize(value)
   const suggestions=useMemo(()=>{
     if(!clean) return items.slice(0,5)
@@ -50,14 +52,19 @@ export default function SearchPanel({ items }: { items:SearchItem[] }){
     return best && best.score <= Math.max(2,Math.ceil(clean.length*.34)) ? best.item : null
   },[clean,items])
 
+  const saveSearch=(term:string)=>{ const t=term.trim(); if(!t) return; setHistory(prev=>{ const next=[t,...prev.filter(x=>x.toLowerCase()!==t.toLowerCase())].slice(0,8); localStorage.setItem('ayushpicks-search-history',JSON.stringify(next)); return next }) }
+  const removeHistory=(term:string)=>setHistory(prev=>{const next=prev.filter(x=>x!==term);localStorage.setItem('ayushpicks-search-history',JSON.stringify(next));return next})
+  const clearHistory=()=>{localStorage.removeItem('ayushpicks-search-history');setHistory([])}
+
   return <div className="standaloneSearch">
-    <form action="/products" className="standaloneSearchForm" role="search">
+    <form action="/products" className="standaloneSearchForm" role="search" onSubmit={()=>saveSearch(value)}>
       <Search size={19} aria-hidden="true"/>
       <input autoComplete="off" name="q" value={value} onChange={e=>setValue(e.target.value)} placeholder="Search products, brands or categories…" aria-label="Search products, brands or categories"/>
       {value && <button type="button" className="searchClear" onClick={()=>setValue('')} aria-label="Clear search"><X size={15}/></button>}
       <button className="btn primary searchSubmit" type="submit">Search <ArrowRight size={15}/></button>
     </form>
     {clean && nearest && !normalize(nearest.name).includes(clean) && <div className="searchCorrection">Did you mean <button type="button" onClick={()=>setValue(nearest.name)}>{nearest.name}</button>?</div>}
+    {history.length>0 && <section className="searchHistory"><div className="searchHistoryHead"><span><Clock3 size={13}/> RECENT SEARCHES</span><button type="button" onClick={clearHistory}>Clear all</button></div><div className="searchHistoryList">{history.map(term=><div className="searchHistoryItem" key={term}><button type="button" onClick={()=>{setValue(term);saveSearch(term)}}>{term}</button><button type="button" onClick={()=>removeHistory(term)} aria-label={'Remove '+term}><Trash2 size={13}/></button></div>)}</div></section>}
     <div className="searchSuggestions" aria-label="Search suggestions">
       <span className="searchSuggestionsLabel">{clean ? 'SUGGESTIONS' : 'TRY SEARCHING'}</span>
       <div className="searchSuggestionList">
