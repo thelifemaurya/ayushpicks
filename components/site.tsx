@@ -37,10 +37,6 @@ export function Header() {
         </div>
       </details>
       <Link className="brand" href="/" aria-label="AYUSHPICKS home"><Brand /></Link>
-      <form className="navSearch" action="/products" role="search">
-        <Search size={16} aria-hidden="true" />
-        <input name="q" aria-label="Search products" placeholder="Search products, brands & categories" />
-      </form>
       <nav className="navlinks" aria-label="Primary navigation">
         <Link href="/search">Search</Link>
         <Link href="/categories">Categories</Link>
