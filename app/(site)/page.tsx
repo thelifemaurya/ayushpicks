@@ -26,7 +26,6 @@ export default async function Home() {
   const highlights = (picks.length >= 2 ? picks : all).filter((p) => p.id !== hero?.id).slice(0, 3);
   const deals = all.filter((p) => discountPct(p) > 0).sort((a, b) => discountPct(b) - discountPct(a)).slice(0, 3);
   const count = (c: string) => all.filter((p) => p.category === c).length;
-  const catImg = (c: string) => all.find((p) => p.category === c && p.images[0])?.images[0];
   return (<>
     <JsonLd data={{ "@context": "https://schema.org", "@type": "WebPage", "@id": `${SITE}/#home`, url: SITE, name: "AyushPicks — Discover, Compare & Decide on Products Worth Buying", isPartOf: { "@id": `${SITE}/#site` }, about: { "@id": `${SITE}/#org` }, inLanguage: "en-IN" }} />
     <section className="wrap pt-4 md:pt-6"><div className="marble relative overflow-hidden rounded-3xl border border-line">
@@ -48,10 +47,10 @@ export default async function Home() {
       <ul className="mt-4 grid gap-2 text-sm text-muted sm:grid-cols-3"><li>✓ Limitations always shown</li><li>✓ Discounts only from real listed prices</li><li>✓ We never sell. You buy from the retailer</li></ul>
     </section>
     <RevealSection id="categories" className="wrap pt-14"><H t="Browse categories" />
-      <div className="-mx-4 flex gap-5 overflow-x-auto px-4 pb-3 pt-1 sm:mx-0 sm:grid sm:grid-cols-5 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-10">{CATEGORIES.map((c) => { const img = catImg(c), n = count(c);
+      <div className="-mx-4 flex gap-5 overflow-x-auto px-4 pb-3 pt-1 sm:mx-0 sm:grid sm:grid-cols-5 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-10">{CATEGORIES.map((c) => { const n = count(c);
         return (<Link key={c} href={`/category/${slugify(c)}`} className="group flex min-w-[84px] shrink-0 flex-col items-center text-center">
           <span className="grid aspect-square h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border border-line bg-s2 text-3xl transition-colors group-hover:border-accent">
-            {img ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={img} alt="" width={80} height={80} loading="lazy" decoding="async" className="h-full w-full object-contain p-2" /> : <span aria-hidden>{EMOJI[c] ?? "✨"}</span>}</span>
+            <span aria-hidden>{EMOJI[c] ?? "✨"}</span></span>
           <span className="mt-2 text-xs font-medium leading-tight">{c}</span><span className="text-[11px] text-muted">{n} {n === 1 ? "item" : "items"}</span></Link>); })}</div></RevealSection>
     {highlights.length > 0 && <RevealSection className="wrap pt-14"><H t="Editor's highlights" s="Products we think deserve a closer look." />
       <div className="grid gap-4 md:grid-cols-3">{highlights.map((p) => (<Link key={p.id} href={`/product/${p.slug}`} className="group overflow-hidden rounded-3xl border border-line bg-white shadow-soft transition hover:-translate-y-0.5 hover:shadow-lg">
