@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
   openGraph: { siteName: "AyushPicks", type: "website", locale: "en_IN" },
   twitter: { card: "summary_large_image" },
-  verification: { ...(process.env.NEXT_PUBLIC_GSC_VERIFICATION ? { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION } : {}), other: { "cuelinks-verification": "VERIFY-CL-P2ITAA", ...(process.env.NEXT_PUBLIC_BING_VERIFICATION ? { "msvalidate.01": process.env.NEXT_PUBLIC_BING_VERIFICATION } : {}) } },
+  verification: { ...(process.env.NEXT_PUBLIC_GSC_VERIFICATION ? { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION } : {}), other: { "cuelinks-verification": "VERIFY-CL-P2ITAA", "google-adsense-account": "ca-pub-1101292617046429", ...(process.env.NEXT_PUBLIC_BING_VERIFICATION ? { "msvalidate.01": process.env.NEXT_PUBLIC_BING_VERIFICATION } : {}) } },
 };
 export default function Root({ children }: { children: React.ReactNode }) {
   return <html lang="en" className={`${inter.variable} ${display.variable}`}><body><AuthRedirect />{children}</body></html>;
