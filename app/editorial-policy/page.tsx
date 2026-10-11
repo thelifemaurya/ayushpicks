@@ -1,0 +1,7 @@
+import { PageShell } from '@/components/site'
+
+export const metadata = { title: 'Editorial Policy' }
+
+export default function EditorialPolicy() {
+  return <PageShell title="How we choose and write about products." kicker="EDITORIAL POLICY"><article className="article"><p>AYUSHPICKS is a product-discovery site. Our goal is to make shopping research easier by highlighting useful products and explaining what is worth considering.</p><h2>How products are selected</h2><p>We consider usefulness, features, value, category relevance and the information available to shoppers. A featured or recommended product is not a guarantee that it is the best choice for every person.</p><h2>How we write</h2><p>We aim to use clear, original wording and practical context. Source or retailer information may be used for factual reference, but we do not intentionally publish copied retailer descriptions as our editorial copy.</p><h2>AI-assisted editing</h2><p>AYUSHPICKS may use AI-assisted tools to improve grammar, clarity, brevity and presentation of draft product copy. AI output is reviewed before publication, and we instruct our tools not to invent product facts.</p><h2>Prices and availability</h2><p>Prices, offers, specifications and availability can change. Always confirm the final details on the retailer website before buying.</p><h2>Corrections</h2><p>If you notice an inaccurate or outdated product detail, please contact us at ayushmourya590@gmail.com so we can review it.</p></article></PageShell>
+}
