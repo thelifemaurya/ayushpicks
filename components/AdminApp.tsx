@@ -1,10 +1,10 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { createClient, Session } from "@supabase/supabase-js";
-import { ADMIN_EMAIL, BUCKET, SB_KEY, SB_URL } from "@/lib/site";
+import type { Session } from "@supabase/supabase-js";
+import { sb } from "@/lib/sb";
+import { ADMIN_EMAIL, BUCKET } from "@/lib/site";
 import { CATEGORIES, slugify } from "@/lib/data";
 
-const sb = createClient(SB_URL || "https://placeholder.supabase.co", SB_KEY || "placeholder");
 const T = "ayushpicks_products";
 const EMPTY = { id: "", name: "", slug: "", brand: "", category: CATEGORIES[0], subcategory: "", description: "", images: "", rating: "", review_count: "0", price: "", mrp: "", discount: "",
   features: "", pros: "", limitations: "", specifications: "", best_for: "", not_ideal_for: "", verdict_summary: "", verdict_scores: "", alternatives: "", retailers: "", tags: "", badge: "", how_to_use: "", conditions: "", source_url: "", published: "false" };
@@ -173,11 +173,129 @@ function PriceRefresh({ rows, reload, say }: { rows: Row[]; reload: () => Promis
     {list.length > show && <button onClick={() => setShow((n) => n + 10)} className="btn-ghost mt-3">Show 10 more ({list.length - show} left)</button>}</section>);
 }
 
+// ---------- Bulk add: many screenshots, one product each ----------
+type Item = { key: string; file: File; status: "queued" | "reading" | "ready" | "failed" | "saved"; err: string; sel: boolean; f: F; store: string; url: string; useShot: boolean };
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const nn = (v: string) => { const n = numOrU(v); return n !== undefined && Number.isFinite(n) ? n : null; };
+function Thumb({ file }: { file: File }) {
+  const [u, setU] = useState("");
+  useEffect(() => { const x = URL.createObjectURL(file); setU(x); return () => URL.revokeObjectURL(x); }, [file]);
+  return u ? <img src={u} alt="Screenshot" className="h-24 w-16 shrink-0 rounded-md border border-line object-cover object-top" /> : <span className="h-24 w-16 shrink-0" />;
+}
+function BulkAdd({ rows, reload, say, done }: { rows: Row[]; reload: () => Promise<void>; say: (m: string) => void; done: () => void }) {
+  const [items, setItems] = useState<Item[]>([]); const [running, setRunning] = useState(false); const [saving, setSaving] = useState(false); const [publish, setPublish] = useState(false);
+  const slugs = new Set(rows.map((r) => String(r.slug)));
+  const patch = (k: string, p: Partial<Item>) => setItems((a) => a.map((x) => (x.key === k ? { ...x, ...p } : x)));
+  const patchF = (k: string, p: Partial<F>) => setItems((a) => a.map((x) => (x.key === k ? { ...x, f: { ...x.f, ...p } } : x)));
+
+  async function readOne(it: Item, tok: string) {
+    patch(it.key, { status: "reading", err: "" });
+    let img = ""; for (const [side, q] of [[2200, 0.75], [1800, 0.6], [1400, 0.5]] as const) { img = await shrink(it.file, side, q); if (img.length < 2_800_000) break; }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const r = await withTimeout(fetch("/api/admin/screenshot", { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${tok}` }, body: JSON.stringify({ images: [img] }) }), 65000, "The AI took too long for this one.");
+      const j = await r.json().catch(() => ({}));
+      if (j.ok) {
+        const d = j.data;
+        const f: F = { ...EMPTY, name: d.name, slug: slugify(d.name), brand: d.brand, category: d.category, subcategory: d.subcategory, description: d.description,
+          price: d.price != null ? String(d.price) : "", mrp: d.mrp != null ? String(d.mrp) : "", rating: j.rating != null ? String(j.rating) : "", review_count: j.reviews != null ? String(j.reviews) : "0",
+          features: d.features.join("\n"), specifications: Object.entries(d.specifications).map(([k, v]) => `${k}: ${v}`).join("\n"), how_to_use: d.how_to_use.join("\n"), conditions: d.conditions.join("\n"), tags: d.tags.join("\n") };
+        patch(it.key, { status: "ready", f, store: "", sel: !slugs.has(f.slug) });
+        return;
+      }
+      if (j.code === "no-vision-key") throw new Error("NOKEY");
+      if (/429/.test(String(j.error)) && attempt < 2) { await sleep(7000 * (attempt + 1)); continue; }
+      throw new Error(j.error || "Couldn't read this screenshot");
+    }
+  }
+  async function start(files: FileList | null) {
+    if (!files?.length) return;
+    const fresh: Item[] = Array.from(files).slice(0, 20).map((file, i) => ({ key: `${Date.now()}-${i}`, file, status: "queued" as const, err: "", sel: true, f: { ...EMPTY }, store: "", url: "", useShot: false }));
+    setItems((a) => [...a, ...fresh]); setRunning(true);
+    const tok = (await sb.auth.getSession()).data.session?.access_token || "";
+    let idx = 0, stop = false;
+    const worker = async () => {
+      while (!stop) {
+        const it = fresh[idx++]; if (!it) return;
+        try { await readOne(it, tok); } catch (e) {
+          const m = (e as Error).message;
+          if (m === "NOKEY") { stop = true; say("Bulk add needs the free Gemini key (GEMINI_API_KEY in Vercel). Without it screenshots can't be read automatically."); patch(it.key, { status: "failed", err: "No Gemini key set" }); } else patch(it.key, { status: "failed", err: m });
+        }
+      }
+    };
+    await Promise.all([worker(), worker()]);
+    setItems((a) => a.map((x) => (x.status === "queued" ? { ...x, status: "failed" as const, err: "Skipped" } : x)));
+    setRunning(false);
+  }
+  async function retry(it: Item) { const tok = (await sb.auth.getSession()).data.session?.access_token || ""; try { await readOne(it, tok); } catch (e) { patch(it.key, { status: "failed", err: (e as Error).message === "NOKEY" ? "No Gemini key set" : (e as Error).message }); } }
+  async function saveAll() {
+    const todo = items.filter((x) => x.sel && x.status === "ready"); if (!todo.length) { say("Select at least one finished product."); return; }
+    setSaving(true); const used = new Set(slugs); let ok = 0, fail = 0;
+    for (const x of todo) {
+      try {
+        const url = x.url.trim(); if (publish && !url) throw new Error("Add the store link before publishing");
+        const base = slugify(x.f.slug || x.f.name); let slug = base, n = 2; while (used.has(slug)) slug = `${base}-${n++}`; used.add(slug);
+        let images = "";
+        if (x.useShot) {
+          const blob = await compress(x.file); const path = `${slug}/${Date.now()}-0.webp`;
+          const { error } = await sb.storage.from(BUCKET).upload(path, blob, { contentType: "image/webp", cacheControl: "31536000" }); if (error) throw error;
+          images = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        }
+        const f: F = { ...x.f, slug, images, published: String(publish), retailers: url ? upsertRetailer("", x.store.trim() || storeFrom(url), url, nn(x.f.price), nn(x.f.mrp)) : "" };
+        const { error } = await sb.from(T).insert(toRow(f)); if (error) throw new Error(error.message);
+        patch(x.key, { status: "saved", err: "" }); ok++;
+      } catch (e) { fail++; patch(x.key, { err: (e as Error).message }); }
+    }
+    setSaving(false); await reload();
+    say(`${ok} product${ok === 1 ? "" : "s"} saved ${publish ? "and published" : "as draft"}${fail ? `. ${fail} had a problem, see the red lines.` : " ✓"}`);
+    if (ok && !fail) { setItems((a) => a.filter((x) => x.status !== "saved")); done(); }
+  }
+  const ready = items.filter((x) => x.status === "ready"), picked = ready.filter((x) => x.sel).length, reading = items.filter((x) => x.status === "reading" || x.status === "queued").length;
+  return (<section className="mt-6 rounded-xl border border-line bg-bg p-5">
+    <h2 className="text-lg font-semibold">Bulk add from screenshots</h2>
+    <p className="mt-1 text-sm text-muted">Select many screenshots at once. <b>One screenshot = one product</b> (capture the top of the product page so name, price and MRP are visible). The AI reads each one, you fix anything wrong, paste each store link, then save them all together.</p>
+    <div className="mt-3 flex flex-wrap items-center gap-2">
+      <label className={`btn-primary cursor-pointer ${running ? "pointer-events-none opacity-50" : ""}`}>Select screenshots (up to 20)<input type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { start(e.target.files); e.target.value = ""; }} /></label>
+      {running && <span role="status" className="text-xs text-muted">Reading… {reading} left</span>}
+      {!!items.length && !running && <button onClick={() => setItems([])} className="btn-ghost">Clear list</button>}</div>
+    {!items.length && <p className="mt-6 rounded-xl border border-dashed border-line p-8 text-center text-sm text-muted">No screenshots yet. Pick them from your gallery and they will appear here.</p>}
+    {!!ready.length && <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-accent/30 bg-s1 p-3 text-sm">
+      <button onClick={() => setItems((a) => a.map((x) => (x.status === "ready" ? { ...x, sel: true } : x)))} className="text-accent">Select all</button>
+      <button onClick={() => setItems((a) => a.map((x) => ({ ...x, sel: false })))} className="text-accent">None</button>
+      <label className="flex items-center gap-1.5"><input type="radio" checked={!publish} onChange={() => setPublish(false)} />Save as Draft</label>
+      <label className="flex items-center gap-1.5"><input type="radio" checked={publish} onChange={() => setPublish(true)} />Publish now</label>
+      <button onClick={saveAll} disabled={saving || running || !picked} className="btn-primary ml-auto">{saving ? "Saving…" : `Save ${picked} selected`}</button></div>}
+    <ul className="mt-4 space-y-3">{items.map((x) => (<li key={x.key} className={`flex gap-3 rounded-xl border p-3 ${x.err && x.status !== "failed" ? "border-red-300" : "border-line"}`}>
+      <Thumb file={x.file} />
+      <div className="min-w-0 flex-1 text-sm">
+        {(x.status === "queued" || x.status === "reading") && <p className="text-muted">{x.status === "reading" ? "Reading this screenshot…" : "Waiting…"}</p>}
+        {x.status === "saved" && <p className="text-accent">Saved ✓ {x.f.name}</p>}
+        {x.status === "failed" && <div><p className="text-red-800">Couldn&apos;t read this one: {x.err}</p><div className="mt-1 space-x-3"><button onClick={() => retry(x)} className="text-accent">Try again</button><button onClick={() => setItems((a) => a.filter((y) => y.key !== x.key))} className="text-muted hover:text-ink">Remove</button></div></div>}
+        {x.status === "ready" && <>
+          <div className="flex items-center gap-2"><input type="checkbox" checked={x.sel} onChange={(e) => patch(x.key, { sel: e.target.checked })} aria-label="Include this product" />
+            <input value={x.f.name} onChange={(e) => patchF(x.key, { name: e.target.value, slug: slugify(e.target.value) })} aria-label="Product name" className="field font-medium" />
+            <button onClick={() => setItems((a) => a.filter((y) => y.key !== x.key))} aria-label="Remove" className="shrink-0 text-muted hover:text-ink">✕</button></div>
+          {slugs.has(slugify(x.f.slug || x.f.name)) && <p className="mt-1 text-xs text-amber-800">A product with this name is already on the site. Saving will add it again with a new link ending (-2).</p>}
+          <div className="mt-2 grid gap-2 sm:grid-cols-4">
+            <input value={x.f.brand} onChange={(e) => patchF(x.key, { brand: e.target.value })} placeholder="Brand" aria-label="Brand" className="field" />
+            <select value={x.f.category} onChange={(e) => patchF(x.key, { category: e.target.value })} aria-label="Category" className="field">{(CATEGORIES.includes(x.f.category) ? CATEGORIES : [x.f.category, ...CATEGORIES]).map((c) => <option key={c}>{c}</option>)}</select>
+            <input value={x.f.price} onChange={(e) => patchF(x.key, { price: e.target.value })} placeholder="Price ₹" inputMode="decimal" aria-label="Price" className="field" />
+            <input value={x.f.mrp} onChange={(e) => patchF(x.key, { mrp: e.target.value })} placeholder="MRP ₹" inputMode="decimal" aria-label="MRP" className="field" /></div>
+          <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_2fr]">
+            <input value={x.store} onChange={(e) => patch(x.key, { store: e.target.value })} placeholder="Store (auto from link)" aria-label="Store name" className="field" />
+            <input value={x.url} onChange={(e) => patch(x.key, { url: e.target.value })} placeholder="Your store link: https://…" aria-label="Store link" className="field" /></div>
+          <label className="mt-2 flex items-center gap-1.5 text-xs text-muted"><input type="checkbox" checked={x.useShot} onChange={(e) => patch(x.key, { useShot: e.target.checked })} />Use this screenshot as the product image (you can replace it later)</label>
+          {x.err && <p className="mt-1 text-xs text-red-800">{x.err}</p>}</>}
+      </div></li>))}</ul>
+    {!!ready.length && <p className="mt-3 text-xs text-muted">Check each price and MRP against your screenshot. Pros, limitations and your verdict can be added later with Edit.</p>}
+  </section>);
+}
+
 export function AdminApp() {
   const [session, setSession] = useState<Session | null>(null); const [ready, setReady] = useState(false);
   const [rows, setRows] = useState<Row[]>([]); const [f, setF] = useState<F>(EMPTY); const [msg, setMsg] = useState(""); const [busy, setBusy] = useState(false);
   const [pw, setPw] = useState(""); const [link, setLink] = useState("");
   const [qf, setQf] = useState({ store: "", url: "", text: "" }); const [ocr, setOcr] = useState(""); const [scanning, setScanning] = useState(false);
+  const [tab, setTab] = useState<"products" | "add" | "bulk" | "prices">("products"); const [q, setQ] = useState(""); const [st, setSt] = useState<"all" | "published" | "draft">("all"); const [shown, setShown] = useState(30);
   const isAdmin = session?.user.email?.toLowerCase() === ADMIN_EMAIL;
   useEffect(() => {
     sb.auth.getSession().then(({ data }) => { setSession(data.session); setReady(true); });
@@ -276,7 +394,7 @@ export function AdminApp() {
       const row = toRow(f);
       const { error } = f.id ? await sb.from(T).update(row).eq("id", f.id) : await sb.from(T).insert(row);
       if (error) throw new Error(error.message.includes("duplicate") ? "This slug is already used by another product" : error.message);
-      setMsg(row.published ? "Saved ✓ It will be live on the site within about a minute." : "Saved as draft ✓ (not visible on the site)."); setF(EMPTY); await load(); window.scrollTo({ top: 0, behavior: "smooth" });
+      setMsg(row.published ? "Saved ✓ It will be live on the site within about a minute." : "Saved as draft ✓ (not visible on the site)."); setF(EMPTY); await load(); setTab("products"); window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) { setMsg((e as Error).message); }
     setBusy(false);
   }
@@ -310,13 +428,20 @@ export function AdminApp() {
     <input value={f[k]} onChange={set(k)} className="field mt-1" /></label>);
   const area = (k: keyof F, label: string, hint?: string, rows = 3) => (<label className="block text-sm"><span className="font-medium">{label}</span>{hint && <span className="ml-2 text-xs text-muted">{hint}</span>}
     <textarea value={f[k]} onChange={set(k)} rows={rows} className="field mt-1 font-mono text-[13px]" /></label>);
+  const stale = rows.filter((r) => ageDays(r.price_checked_at) >= 14).length;
+  const needle = q.trim().toLowerCase();
+  const visible = rows.filter((r) => (st === "all" || (st === "published") === !!r.published) && (!needle || `${r.name} ${r.brand ?? ""} ${r.category}`.toLowerCase().includes(needle)));
   const bad = !!msg && !/^Saved|✓|uploaded|Deleted|Draft created|found|read your screenshots/i.test(msg);
   return (<div className="wrap py-8">
     {msg && <div role="status" aria-live="polite" className={`fixed inset-x-3 bottom-4 z-50 mx-auto flex max-w-xl items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg ${bad ? "border-red-300 bg-red-50 text-red-900" : "border-accent/30 bg-bg text-ink"}`}><p className="flex-1">{msg}</p><button onClick={() => setMsg("")} aria-label="Dismiss message" className="shrink-0 text-muted hover:text-ink">✕</button></div>}
     <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-semibold">AyushPicks Admin</h1>
       <div className="flex gap-2"><a href="/" target="_blank" rel="noopener" className="btn-ghost">View site ↗</a><button onClick={() => sb.auth.signOut()} className="btn-ghost">Sign out</button></div></div>
-    <section className="mt-6 rounded-xl border border-line bg-bg p-5"><h2 className="text-lg font-semibold">{f.id ? "Edit product" : "Add a product"}</h2>
-      <div className="mt-4 rounded-xl border border-accent/30 bg-s1 p-4"><h3 className="text-sm font-medium">Quick fill from copied text <span className="ml-1 rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">Free</span></h3>
+    <nav aria-label="Admin sections" className="sticky top-0 z-30 -mx-4 mt-4 flex gap-2 overflow-x-auto border-b border-line bg-bg/95 px-4 py-2 backdrop-blur sm:mx-0 sm:px-0">
+      {([["products", `Products (${rows.length})`], ["add", f.id ? "Edit product" : "Add product"], ["bulk", "Bulk add"], ["prices", `Prices${stale ? ` (${stale})` : ""}`]] as const).map(([k, label]) => (
+        <button key={k} onClick={() => { setTab(k); window.scrollTo({ top: 0 }); }} aria-current={tab === k ? "page" : undefined} className={`${tab === k ? "btn-primary" : "btn-ghost"} shrink-0 !py-2`}>{label}</button>))}
+    </nav>
+    {tab === "add" && <section className="mt-6 rounded-xl border border-line bg-bg p-5"><h2 className="text-lg font-semibold">{f.id ? "Edit product" : "Add a product"}</h2>
+      <details open={!f.id} className="mt-4 rounded-xl border border-accent/30 bg-s1 p-4"><summary className="cursor-pointer text-sm font-medium">Quick fill from copied text or screenshots <span className="ml-1 rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">Free</span></summary>
         <p className="mt-1 text-xs text-muted">Open the product on the store (Amazon, Flipkart…), select all the text on the page, copy and paste it here. Works with no AI key. Use it again with another store&apos;s page to add that store&apos;s link and price to the same product, so shoppers can compare.</p>
         <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_2fr]"><input value={qf.store} onChange={(e) => setQf((q) => ({ ...q, store: e.target.value }))} placeholder="Store name (auto from link)" aria-label="Store name" className="field" />
           <input value={qf.url} onChange={(e) => setQf((q) => ({ ...q, url: e.target.value }))} placeholder="Your link for this store: https://…" aria-label="Store link" className="field" /></div>
@@ -324,11 +449,12 @@ export function AdminApp() {
         <div className="mt-2 flex flex-wrap items-center gap-2"><button onClick={() => quickFill()} disabled={busy || scanning} className="btn-primary">Fill the form</button>
           <label className={`btn-ghost cursor-pointer ${scanning ? "pointer-events-none opacity-50" : ""}`}>Or upload screenshots<input type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { readShots(e.target.files); e.target.value = ""; }} /></label>
           {ocr && <span role="status" className="text-xs text-muted">{ocr}</span>}</div>
-        <p className="mt-2 text-xs text-muted">Screenshots: upload up to 6 (scroll the page and capture it in parts). With a free Gemini key set in Vercel they are read by AI (accurate). Without it, a basic reader inside your browser is used (less accurate, check every number). Add the store link above first.</p></div>
-      <div className="mt-4 rounded-xl border border-line bg-s1 p-4"><label htmlFor="plink" className="block text-sm font-medium">Auto-fill with AI (needs an Anthropic key)</label>
+        <p className="mt-2 text-xs text-muted">Screenshots: upload up to 6 (scroll the page and capture it in parts). With a free Gemini key set in Vercel they are read by AI (accurate). Without it, a basic reader inside your browser is used (less accurate, check every number). Add the store link above first. Have many different products? Use the <b>Bulk add</b> tab.</p></details>
+      <details className="mt-4 rounded-xl border border-line bg-s1 p-4"><summary className="cursor-pointer text-sm font-medium">Auto-fill from a link with AI (needs an Anthropic key)</summary><label htmlFor="plink" className="sr-only">Product link</label>
         <p className="mt-1 text-xs text-muted">Paste any product link (Amazon, Flipkart, Myntra, a brand site…). AI writes the details as a draft. You review, add your affiliate link and publish.</p>
-        <div className="mt-2 flex flex-col gap-2 sm:flex-row"><input id="plink" value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://www.amazon.in/…" className="field" /><button onClick={autofill} disabled={busy} className="btn-primary shrink-0">Auto-fill</button></div></div>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row"><input id="plink" value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://www.amazon.in/…" className="field" /><button onClick={autofill} disabled={busy} className="btn-primary shrink-0">Auto-fill</button></div></details>
+      <h3 className="mt-6 border-t border-line pt-4 text-sm font-semibold">Basics &amp; price</h3>
+      <div className="mt-3 grid gap-4 md:grid-cols-2">
         {inp("name", "Product name *")}{inp("slug", "URL slug", "auto from name, e.g. sony-wh-1000xm5")}
         {inp("brand", "Brand")}
         <label className="block text-sm"><span className="font-medium">Category *</span><select value={f.category} onChange={set("category")} className="field mt-1">{(CATEGORIES.includes(f.category) ? CATEGORIES : [f.category, ...CATEGORIES]).map((c) => <option key={c} value={c}>{c}</option>)}</select></label>
@@ -340,30 +466,41 @@ export function AdminApp() {
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div className="md:col-span-2">{area("description", "Short description", "one or two sentences", 2)}</div>
+        <h3 className="mt-2 border-t border-line pt-4 text-sm font-semibold md:col-span-2">Images</h3>
         <div className="md:col-span-2"><label className="block text-sm"><span className="font-medium">Images</span><span className="ml-2 text-xs text-muted">upload (auto-compressed to WebP) or paste https:// URLs, one per line</span>
           <input type="file" accept="image/*" multiple onChange={(e) => { upload(e.target.files); e.target.value = ""; }} className="field mt-1" /></label>
           <textarea value={f.images} onChange={set("images")} rows={3} aria-label="Image URLs" className="field mt-2 font-mono text-[13px]" />
           {L(f.images)[0]?.startsWith("https://") && <img src={L(f.images)[0]} alt="Preview of the first image" className="mt-2 h-24 w-24 rounded-lg border border-line object-contain" />}</div>
+        <h3 className="mt-2 border-t border-line pt-4 text-sm font-semibold md:col-span-2">Highlights &amp; specs</h3>
         {area("features", "Key highlights", "one per line", 4)}{area("specifications", "Specifications", "Key: Value, one per line", 4)}
+        <h3 className="mt-2 border-t border-line pt-4 text-sm font-semibold md:col-span-2">Pros, limitations &amp; audience</h3>
         {area("pros", "Pros", "one per line")}{area("limitations", "Limitations", "one per line")}
         {area("best_for", "Good for", "one per line")}{area("not_ideal_for", "Not ideal for", "one per line")}
+        <h3 className="mt-2 border-t border-line pt-4 text-sm font-semibold md:col-span-2">Usage &amp; terms</h3>
         {area("how_to_use", "How to use / apply", "one step per line", 4)}{area("conditions", "Conditions & terms", "warranty, returns, compatibility…", 4)}
+        <h3 className="mt-2 border-t border-line pt-4 text-sm font-semibold md:col-span-2">Verdict &amp; tags</h3>
         <div className="md:col-span-2">{area("verdict_summary", "AyushPicks verdict", "your honest take", 2)}</div>
         {area("verdict_scores", "Verdict scores (0–5)", "Overall: 4.5 · Value: 4 …")}{area("tags", "Tags", "one per line")}
+        <h3 className="mt-2 border-t border-line pt-4 text-sm font-semibold md:col-span-2">Stores, links &amp; prices</h3>
         <div className="md:col-span-2">{area("retailers", "Store links & prices *", "Store | https://link | price | MRP, one store per line. Price and MRP are optional. Add several stores to show a price comparison.", 4)}</div>
         <div className="md:col-span-2">{area("alternatives", "Alternatives", "slugs of other products, one per line", 2)}</div>
         <div className="md:col-span-2">{inp("source_url", "Source link", "optional: where the details came from")}</div>
       </div>
       <div className="mt-5 flex gap-2"><button onClick={save} disabled={busy} className="btn-primary">{busy ? "Saving…" : f.id ? "Save changes" : "Add product"}</button>
         {(f.id || f.name) && <button onClick={() => { setF(EMPTY); setMsg(""); }} className="btn-ghost">Clear form</button>}</div>
-    </section>
-    <PriceRefresh rows={rows} reload={load} say={setMsg} />
-    <section className="mt-8"><h2 className="text-lg font-semibold">Products ({rows.length})</h2>
+    </section>}
+    {tab === "bulk" && <BulkAdd rows={rows} reload={load} say={setMsg} done={() => { setTab("products"); window.scrollTo({ top: 0 }); }} />}
+    {tab === "prices" && <PriceRefresh rows={rows} reload={load} say={setMsg} />}
+    {tab === "products" && <section className="mt-6">
+      <div className="flex flex-wrap items-center gap-2"><h2 className="mr-auto text-lg font-semibold">Products ({visible.length}{visible.length !== rows.length ? ` of ${rows.length}` : ""})</h2>
+        <input value={q} onChange={(e) => { setQ(e.target.value); setShown(30); }} placeholder="Search name, brand, category" aria-label="Search products" className="field !w-56" />
+        <select value={st} onChange={(e) => { setSt(e.target.value as typeof st); setShown(30); }} aria-label="Filter by status" className="field !w-auto"><option value="all">All</option><option value="published">Published</option><option value="draft">Drafts</option></select></div>
       <div className="mt-3 overflow-x-auto rounded-xl border border-line bg-bg"><table className="w-full min-w-[560px] text-sm"><thead className="text-left text-xs text-muted"><tr><th className="px-3 py-2">Name</th><th className="px-3 py-2">Category</th><th className="px-3 py-2">Status</th><th className="px-3 py-2" /></tr></thead>
-        <tbody>{rows.map((r) => (<tr key={r.id} className="border-t border-line"><td className="px-3 py-2">{r.name}</td><td className="px-3 py-2 text-muted">{r.category}</td>
+        <tbody>{visible.slice(0, shown).map((r) => (<tr key={r.id} className="border-t border-line"><td className="px-3 py-2">{r.name}</td><td className="px-3 py-2 text-muted">{r.category}</td>
           <td className="px-3 py-2"><button onClick={() => toggle(r)} className={`chip ${r.published ? "!border-accent !text-accent" : ""}`}>{r.published ? "Published" : "Draft"}</button></td>
           <td className="space-x-2 px-3 py-2 text-right"><a href={`/product/${r.slug}`} target="_blank" rel="noopener" className="text-accent">View</a>
-            <button onClick={() => { setF(toForm(r)); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-accent">Edit</button><button onClick={() => del(r)} className="text-muted hover:text-ink">Delete</button></td></tr>))}
-          {!rows.length && <tr><td colSpan={4} className="px-3 py-8 text-center text-muted">No products yet. Add your first one above.</td></tr>}</tbody></table></div></section>
+            <button onClick={() => { setF(toForm(r)); setTab("add"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-accent">Edit</button><button onClick={() => del(r)} className="text-muted hover:text-ink">Delete</button></td></tr>))}
+          {!visible.length && <tr><td colSpan={4} className="px-3 py-8 text-center text-muted">{rows.length ? "No products match." : "No products yet. Use Add product or Bulk add."}</td></tr>}</tbody></table></div>
+      {visible.length > shown && <button onClick={() => setShown((n) => n + 30)} className="btn-ghost mt-3">Show 30 more</button>}</section>}
   </div>);
 }
