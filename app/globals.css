@@ -15,6 +15,18 @@
   .field { @apply w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm focus:border-accent; }
 }
 
+/* Installed-app only: launch splash and a gentle tab bar entrance. Normal website visits are untouched. */
+.app-splash { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #F4E9DB; opacity: 1; transition: opacity .5s ease; }
+.app-splash-out { opacity: 0; pointer-events: none; }
+.app-splash-mark { width: min(70vw, 340px); height: auto; animation: splashIn .9s cubic-bezier(.2,.8,.2,1) both; }
+.app-splash-out .app-splash-mark { transform: scale(1.04); transition: transform .5s ease; }
+@keyframes splashIn { from { opacity: 0; transform: translateY(10px) scale(.94); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes navUp { from { transform: translateY(100%); } to { transform: none; } }
+@media (display-mode: standalone) {
+  nav[aria-label="Quick navigation"] { animation: navUp .5s cubic-bezier(.2,.8,.2,1) 1s both; }
+  .animate-page { animation-duration: .38s; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }

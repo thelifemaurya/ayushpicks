@@ -10,9 +10,11 @@ const SIZE = 56, EDGE = 8;
 function Rich({ text }: { text: string }) {
   return <>{text.split(/(\/product\/[a-z0-9-]+)/g).map((t, i) => (/^\/product\//.test(t) ? <Link key={i} href={t} className="font-medium text-accent underline">View product</Link> : <Fragment key={i}>{t}</Fragment>))}</>;
 }
+// On phones the bottom tab bar (about 64px plus the home-indicator area) must stay clear, so the button can never be dragged behind it.
+const bottomReserve = () => (window.innerWidth < 768 ? 84 : 0);
 const clampPos = (p: Pos): Pos => ({
   x: Math.min(Math.max(EDGE, p.x), Math.max(EDGE, window.innerWidth - SIZE - EDGE)),
-  y: Math.min(Math.max(EDGE, p.y), Math.max(EDGE, window.innerHeight - SIZE - EDGE)),
+  y: Math.min(Math.max(EDGE, p.y), Math.max(EDGE, window.innerHeight - SIZE - EDGE - bottomReserve())),
 });
 export function Chatbot() {
   const { compare } = useStore();
@@ -37,9 +39,9 @@ export function Chatbot() {
     const b = btn.current; if (!b) return;
     const r = b.getBoundingClientRect(); const vw = window.innerWidth, vh = window.innerHeight;
     const width = Math.min(vw - 16, 380);
-    const above = r.top, below = vh - r.bottom; const up = above >= below;
+    const above = r.top, below = vh - bottomReserve() - r.bottom; const up = above >= below;
     const height = Math.max(240, Math.min(540, vh * 0.72, (up ? above : below) - 20));
-    const top = up ? Math.max(8, r.top - 12 - height) : Math.min(vh - height - 8, r.bottom + 12);
+    const top = up ? Math.max(8, r.top - 12 - height) : Math.min(vh - bottomReserve() - height - 8, r.bottom + 12);
     const cx = r.left + r.width / 2;
     const left = Math.min(Math.max(8, cx - width / 2), vw - width - 8);
     setPanel({ left, top, width, height, origin: `${Math.round(cx - left)}px ${up ? "bottom" : "top"}` });
@@ -80,13 +82,14 @@ export function Chatbot() {
   }
   const defaultPos = compare.length ? "right-4 bottom-[8.5rem] md:bottom-20" : "right-4 bottom-[4.75rem] md:bottom-4";
   return (<>
+    {dragging && <div aria-hidden className="pointer-events-none fixed inset-x-2 top-2 z-[44] animate-fade rounded-3xl border-2 border-dashed border-accent/40 bg-accent/[0.03] bottom-[84px] md:bottom-2" />}
     <button ref={btn} type="button" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onClick={onClick}
       aria-expanded={open} aria-label={open ? "Close assistant" : "Open assistant (drag to move)"}
       style={pos ? { left: pos.x, top: pos.y } : undefined}
-      className={`fixed z-40 grid h-14 w-14 shrink-0 touch-none select-none place-items-center rounded-full bg-ink text-white shadow-lg shadow-black/25 ring-2 ring-white/70 ${dragging ? "scale-105 cursor-grabbing" : "cursor-grab transition-transform hover:scale-105 active:scale-95"} ${pos ? "" : defaultPos}`}>
+      className={`fixed z-[45] grid h-14 w-14 shrink-0 touch-none select-none place-items-center rounded-full border border-white/30 bg-ink text-white shadow-lg shadow-black/25 ring-2 ring-white/80 ${dragging ? "scale-105 cursor-grabbing" : "cursor-grab transition-transform hover:scale-105 active:scale-95"} ${pos ? "" : defaultPos}`}>
       <Ic d={open ? PATHS.close : PATHS.chat} className="h-6 w-6" /></button>
     {open && panel && <section aria-label="AyushPicks assistant" style={{ left: panel.left, top: panel.top, width: panel.width, height: panel.height, transformOrigin: panel.origin }}
-      className="fixed z-40 flex animate-pop flex-col overflow-hidden rounded-2xl border border-line bg-bg shadow-2xl shadow-black/20">
+      className="fixed z-[46] flex animate-pop flex-col overflow-hidden rounded-2xl border border-line bg-bg shadow-2xl shadow-black/20">
       <header className="flex items-center justify-between border-b border-line px-4 py-3"><div><h2 className="font-sans text-sm font-semibold">AyushPicks assistant</h2><p className="text-xs text-muted">Products, comparisons, how the site works</p></div>
         <button onClick={() => setOpen(false)} aria-label="Close" className="grid h-8 w-8 place-items-center rounded-full hover:bg-s2"><Ic d={PATHS.close} className="h-4 w-4" /></button></header>
       <div ref={list} className="flex-1 space-y-3 overflow-y-auto px-4 py-3 text-sm" aria-live="polite">
