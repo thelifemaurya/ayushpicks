@@ -3,6 +3,7 @@ export const BRAND = "AyushPicks";
 export const ALT_NAMES = ["Ayush Picks", "ayushpicks", "ayush picks", "Ayush Picks India"];
 export const TAGLINE = "Discover, compare and decide on products worth buying";
 export const INSTAGRAM = "https://www.instagram.com/ayushpicks";
+export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "ayushpickss@gmail.com";
 export const INSTAGRAM_HANDLE = "@ayushpicks";
 export const DEFAULT_SITE = "https://ayushpicks.vercel.app";
 // The env value is ignored if it still points at an old project hostname, so canonicals never leak the wrong domain.
