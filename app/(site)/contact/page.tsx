@@ -7,6 +7,8 @@ export default function Contact() {
   return (<><JsonLd data={{ "@context": "https://schema.org", "@type": "ContactPage", url: `${SITE}/contact`, name: "Contact AyushPicks", about: { "@id": `${SITE}/#org` } }} />
     <Info title="Contact">
       <p>Found a mistake, want to suggest a product, or have a partnership idea? We read every message and reply as soon as we can, usually within a few days.</p>
+      <h2>Suggest a product</h2>
+      <p>Know a product that deserves a spot? <a href="/suggest">Send us the link</a> and we&apos;ll review it.</p>
       <h2>Email</h2>
       <p><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
       <h2>Instagram</h2>

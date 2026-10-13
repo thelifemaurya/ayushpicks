@@ -290,12 +290,41 @@ function BulkAdd({ rows, reload, say, done }: { rows: Row[]; reload: () => Promi
   </section>);
 }
 
+type Sugg = { id: string; created_at: string; url: string; name: string | null; note: string | null; contact: string | null; status: string };
+function Suggestions({ items, reload, say, onAdd }: { items: Sugg[]; reload: () => Promise<void>; say: (m: string) => void; onAdd: (s: Sugg) => void }) {
+  const [view, setView] = useState<"new" | "all">("new");
+  const list = items.filter((x) => view === "all" || x.status === "new");
+  async function mark(s: Sugg, status: string) { const { error } = await sb.from("ayushpicks_suggestions").update({ status }).eq("id", s.id); if (error) say(error.message); else await reload(); }
+  async function remove(s: Sugg) { if (!confirm("Delete this suggestion?")) return; const { error } = await sb.from("ayushpicks_suggestions").delete().eq("id", s.id); if (error) say(error.message); else { say("Deleted ✓"); await reload(); } }
+  return (<section className="mt-6">
+    <div className="flex flex-wrap items-center gap-2"><h2 className="text-lg font-semibold">Customer suggestions</h2>
+      <div className="ml-auto flex gap-2">{(["new", "all"] as const).map((v) => <button key={v} onClick={() => setView(v)} aria-pressed={view === v} className={`chip ${view === v ? "!border-accent !text-accent" : ""}`}>{v === "new" ? `New (${items.filter((x) => x.status === "new").length})` : `All (${items.length})`}</button>)}</div></div>
+    <p className="mt-1 text-sm text-muted">Links sent from the public Suggest page. Nothing goes live until you add it. Open the link, check the product, then tap Add to start a draft.</p>
+    {!list.length ? <p className="mt-6 rounded-xl border border-line bg-s1 p-5 text-sm text-muted">No suggestions here yet.</p> :
+      <ul className="mt-4 space-y-3">{list.map((s) => {
+        let host = ""; try { host = new URL(s.url).hostname.replace(/^www\./, ""); } catch {}
+        return (<li key={s.id} className="rounded-xl border border-line bg-bg p-4 text-sm">
+          <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">{storeFrom(s.url)}</span>
+            {s.status !== "new" && <span className="rounded-full border border-line px-2 py-0.5 text-xs text-muted">{s.status}</span>}
+            <span className="ml-auto text-xs text-muted">{new Date(s.created_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" })}</span></div>
+          {s.name && <p className="mt-2 font-medium">{s.name}</p>}
+          <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="mt-1 block break-all text-accent underline">{host || s.url} ↗</a>
+          {s.note && <p className="mt-2 text-muted">“{s.note}”</p>}
+          {s.contact && <p className="mt-1 text-xs text-muted">From: {s.contact}</p>}
+          <div className="mt-3 flex flex-wrap gap-3 text-sm"><button onClick={() => onAdd(s)} className="btn-primary !py-1.5">Add as product</button>
+            {s.status === "new" && <button onClick={() => mark(s, "rejected")} className="text-muted hover:text-ink">Reject</button>}
+            {s.status !== "new" && <button onClick={() => mark(s, "new")} className="text-muted hover:text-ink">Move back to new</button>}
+            <button onClick={() => remove(s)} className="text-muted hover:text-ink">Delete</button></div></li>);
+      })}</ul>}
+  </section>);
+}
+
 export function AdminApp() {
   const [session, setSession] = useState<Session | null>(null); const [ready, setReady] = useState(false);
   const [rows, setRows] = useState<Row[]>([]); const [f, setF] = useState<F>(EMPTY); const [msg, setMsg] = useState(""); const [busy, setBusy] = useState(false);
-  const [pw, setPw] = useState(""); const [link, setLink] = useState("");
+  const [pw, setPw] = useState(""); const [link, setLink] = useState(""); const [sugg, setSugg] = useState<Sugg[]>([]);
   const [qf, setQf] = useState({ store: "", url: "", text: "" }); const [ocr, setOcr] = useState(""); const [scanning, setScanning] = useState(false);
-  const [tab, setTab] = useState<"products" | "add" | "bulk" | "prices">("products"); const [q, setQ] = useState(""); const [st, setSt] = useState<"all" | "published" | "draft">("all"); const [shown, setShown] = useState(30);
+  const [tab, setTab] = useState<"products" | "add" | "bulk" | "prices" | "suggest">("products"); const [q, setQ] = useState(""); const [st, setSt] = useState<"all" | "published" | "draft">("all"); const [shown, setShown] = useState(30);
   const isAdmin = session?.user.email?.toLowerCase() === ADMIN_EMAIL;
   useEffect(() => {
     sb.auth.getSession().then(({ data }) => { setSession(data.session); setReady(true); });
@@ -306,7 +335,11 @@ export function AdminApp() {
     const { data, error } = await sb.from(T).select("*").order("created_at", { ascending: false });
     if (error) setMsg(error.message); else setRows(data ?? []);
   }, []);
-  useEffect(() => { if (isAdmin) load(); }, [isAdmin, load]);
+  const loadSugg = useCallback(async () => {
+    const { data, error } = await sb.from("ayushpicks_suggestions").select("*").order("created_at", { ascending: false }).limit(200);
+    if (error) setMsg(error.message); else setSugg((data ?? []) as Sugg[]);
+  }, []);
+  useEffect(() => { if (isAdmin) { load(); loadSugg(); } }, [isAdmin, load, loadSugg]);
   const set = (k: keyof F) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setF((p) => ({ ...p, [k]: e.target.value }));
 
   async function signIn() {
@@ -437,7 +470,7 @@ export function AdminApp() {
     <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-semibold">AyushPicks Admin</h1>
       <div className="flex gap-2"><a href="/" target="_blank" rel="noopener" className="btn-ghost">View site ↗</a><button onClick={() => sb.auth.signOut()} className="btn-ghost">Sign out</button></div></div>
     <nav aria-label="Admin sections" className="sticky top-0 z-30 -mx-4 mt-4 flex gap-2 overflow-x-auto border-b border-line bg-bg/95 px-4 py-2 backdrop-blur sm:mx-0 sm:px-0">
-      {([["products", `Products (${rows.length})`], ["add", f.id ? "Edit product" : "Add product"], ["bulk", "Bulk add"], ["prices", `Prices${stale ? ` (${stale})` : ""}`]] as const).map(([k, label]) => (
+      {([["products", `Products (${rows.length})`], ["add", f.id ? "Edit product" : "Add product"], ["bulk", "Bulk add"], ["prices", `Prices${stale ? ` (${stale})` : ""}`], ["suggest", `Suggestions${sugg.some((x) => x.status === "new") ? ` (${sugg.filter((x) => x.status === "new").length})` : ""}`]] as const).map(([k, label]) => (
         <button key={k} onClick={() => { setTab(k); window.scrollTo({ top: 0 }); }} aria-current={tab === k ? "page" : undefined} className={`${tab === k ? "btn-primary" : "btn-ghost"} shrink-0 !py-2`}>{label}</button>))}
     </nav>
     {tab === "add" && <section className="mt-6 rounded-xl border border-line bg-bg p-5"><h2 className="text-lg font-semibold">{f.id ? "Edit product" : "Add a product"}</h2>
@@ -490,6 +523,7 @@ export function AdminApp() {
         {(f.id || f.name) && <button onClick={() => { setF(EMPTY); setMsg(""); }} className="btn-ghost">Clear form</button>}</div>
     </section>}
     {tab === "bulk" && <BulkAdd rows={rows} reload={load} say={setMsg} done={() => { setTab("products"); window.scrollTo({ top: 0 }); }} />}
+    {tab === "suggest" && <Suggestions items={sugg} reload={loadSugg} say={setMsg} onAdd={async (x) => { setF({ ...EMPTY, name: x.name ?? "" }); setLink(x.url); setTab("add"); window.scrollTo({ top: 0 }); setMsg("Link filled in. Tap the quick-fill button to read the product, then save it as a draft ✓"); await sb.from("ayushpicks_suggestions").update({ status: "added" }).eq("id", x.id); loadSugg(); }} />}
     {tab === "prices" && <PriceRefresh rows={rows} reload={load} say={setMsg} />}
     {tab === "products" && <section className="mt-6">
       <div className="flex flex-wrap items-center gap-2"><h2 className="mr-auto text-lg font-semibold">Products ({visible.length}{visible.length !== rows.length ? ` of ${rows.length}` : ""})</h2>

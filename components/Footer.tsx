@@ -9,7 +9,7 @@ export function Footer() {
       <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer me" className="mt-3 inline-block text-sm text-accent hover:underline">Follow @ayushpicks on Instagram ↗</a>
       <InstallButton />
       <p className="mt-4 max-w-sm text-xs text-muted">AyushPicks doesn&apos;t sell products. We link to retailers and may earn a commission if you buy. It never changes our verdicts.</p></div>
-    {col("Explore", [["Discover", "/search"], ["Categories", "/#categories"], ["Compare", "/compare"], ["Saved", "/saved"]])}
+    {col("Explore", [["Discover", "/search"], ["Categories", "/#categories"], ["Compare", "/compare"], ["Suggest a product", "/suggest"], ["Saved", "/saved"]])}
     {col("Information", [["About AyushPicks", "/about"], ["How it works", "/#how"], ["Editorial approach", "/about#editorial"], ["Contact", "/contact"], ["Privacy", "/privacy"], ["Terms", "/terms"]])}
   </div><div className="wrap border-t border-line py-5 text-xs text-muted">© {new Date().getFullYear()} AyushPicks. All rights reserved.</div></footer>);
 }

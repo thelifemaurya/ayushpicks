@@ -42,3 +42,22 @@ export const sortedOffers = (p: Product): Retailer[] => [...p.retailers].sort((a
 
 // "Prices checked 8 Oct 2026" (empty if unknown).
 export const checkedOn = (p: Product) => { if (!p.priceCheckedAt) return ""; const d = new Date(p.priceCheckedAt); return Number.isNaN(d.getTime()) ? "" : `Price checked ${d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" })}.`; };
+
+// Store filter helpers: "Amazon India", "amazon.in" and "Amazon" all count as one store.
+export const storeKey = (n: string) => n.toLowerCase().replace(/\.(in|com|co\.in)\b/g, "").trim().split(/[^a-z0-9]+/)[0] || "";
+export const hasStore = (p: Product, key: string) => p.retailers.some((r) => storeKey(r.name) === key);
+export function storesOf(ps: Product[]): { key: string; label: string; count: number }[] {
+  const m = new Map<string, { key: string; label: string; count: number }>();
+  for (const p of ps) for (const k of new Set(p.retailers.map((r) => storeKey(r.name)).filter(Boolean))) {
+    const e = m.get(k); if (e) e.count++; else { const raw = p.retailers.find((r) => storeKey(r.name) === k)!.name.trim().split(/[^A-Za-z0-9]+/)[0]; m.set(k, { key: k, label: raw.charAt(0).toUpperCase() + raw.slice(1), count: 1 }); }
+  }
+  return [...m.values()].sort((a, b) => b.count - a.count);
+}
+// Store name from a product link (used to prefill the admin form).
+export function storeFromUrl(u: string): string {
+  try { const h = new URL(u).hostname.replace(/^www\./, "").toLowerCase();
+    if (/(^|\.)(amazon\.|amzn\.)/.test(h)) return "Amazon"; if (/(flipkart\.|fkrt\.)/.test(h)) return "Flipkart"; if (/myntra\./.test(h)) return "Myntra";
+    if (/nykaa\./.test(h)) return "Nykaa"; if (/ajio\./.test(h)) return "Ajio"; if (/meesho\./.test(h)) return "Meesho";
+    const w = h.split(".")[0]; return w.charAt(0).toUpperCase() + w.slice(1);
+  } catch { return "Store"; }
+}
