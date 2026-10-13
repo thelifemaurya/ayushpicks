@@ -348,6 +348,21 @@ export function AdminApp() {
       : await sb.auth.signInWithOtp({ email: ADMIN_EMAIL, options: { shouldCreateUser: true, emailRedirectTo: `${location.origin}/admin` } });
     setMsg(r.error ? r.error.message : pw ? "" : `Sign-in link sent to ${ADMIN_EMAIL}. Open it on this device.`); setBusy(false);
   }
+  async function convertLinks() {
+    const lines = f.retailers.split("\n"); const todo = lines.map((l, i) => ({ i, p: l.split("|").map((x) => x.trim()) })).filter((x) => /^https:\/\//i.test(x.p[1] ?? "") && !/(^|\.)(clnk\.in|cuelinks\.com)\b/i.test(new URL(x.p[1]).hostname));
+    if (!todo.length) { setMsg("Nothing to convert: add lines like  Myntra | https://… first (links already converted are skipped)."); return; }
+    setBusy(true); setMsg("");
+    try {
+      const tok = (await sb.auth.getSession()).data.session?.access_token || "";
+      const r = await fetch("/api/admin/cuelinks", { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${tok}` }, body: JSON.stringify({ urls: todo.map((x) => x.p[1]) }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.ok) { setMsg(d.error || "Couldn't convert links."); return; }
+      let ok = 0; const errs: string[] = []; const next = [...lines];
+      todo.forEach((x, k) => { const res = d.results?.[k]; if (res?.link) { const q = [...x.p]; q[1] = res.link; next[x.i] = q.join(" | "); ok++; } else errs.push(res?.error || "failed"); });
+      setF((p) => ({ ...p, retailers: next.join("\n") }));
+      setMsg(errs.length ? `${ok} converted ✓, ${errs.length} failed: ${errs[0]}` : `${ok} link${ok === 1 ? "" : "s"} converted to Cuelinks ✓ Save the product to keep them.`);
+    } catch { setMsg("Network problem while converting links."); } finally { setBusy(false); }
+  }
   async function autofill() {
     const url = link.trim(); if (!/^https:\/\//i.test(url)) { setMsg("Paste a full product link starting with https://"); return; }
     setBusy(true); setMsg("Reading the page and writing a draft. This can take up to a minute…");
@@ -515,7 +530,7 @@ export function AdminApp() {
         <div className="md:col-span-2">{area("verdict_summary", "AyushPicks verdict", "your honest take", 2)}</div>
         {area("verdict_scores", "Verdict scores (0–5)", "Overall: 4.5 · Value: 4 …")}{area("tags", "Tags", "one per line")}
         <h3 className="mt-2 border-t border-line pt-4 text-sm font-semibold md:col-span-2">Stores, links &amp; prices</h3>
-        <div className="md:col-span-2">{area("retailers", "Store links & prices *", "Store | https://link | price | MRP, one store per line. Price and MRP are optional. Add several stores to show a price comparison.", 4)}</div>
+        <div className="md:col-span-2">{area("retailers", "Store links & prices *", "Store | https://link | price | MRP, one store per line. Price and MRP are optional. Add several stores to show a price comparison.", 4)}<button type="button" onClick={convertLinks} disabled={busy} className="btn-ghost mt-2">Convert links with Cuelinks</button></div>
         <div className="md:col-span-2">{area("alternatives", "Alternatives", "slugs of other products, one per line", 2)}</div>
         <div className="md:col-span-2">{inp("source_url", "Source link", "optional: where the details came from")}</div>
       </div>
