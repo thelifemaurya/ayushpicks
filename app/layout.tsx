@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   title: { default: "AyushPicks — Discover, Compare & Decide on Products Worth Buying", template: "%s | AyushPicks" },
   description: SHORT_DESC,
   applicationName: "AyushPicks",
+  // Google needs a favicon whose size is a multiple of 48px (48, 96, 192...). The 192px PNG satisfies that.
+  icons: { icon: [{ url: "/favicon.ico", sizes: "48x48" }, { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }], apple: [{ url: "/apple-icon.png", sizes: "180x180" }] },
   keywords: ["AyushPicks", ...ALT_NAMES, "ayushpicks instagram", "product recommendations India", "compare prices India", "product reviews pros and limitations", "what to buy"],
   authors: [{ name: "AyushPicks", url: SITE }], creator: "AyushPicks", publisher: "AyushPicks", category: "shopping",
   appleWebApp: { capable: true, title: "AyushPicks", statusBarStyle: "default" },
