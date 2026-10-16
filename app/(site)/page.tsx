@@ -32,12 +32,12 @@ export default async function Home() {
       <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 p-6 md:grid-cols-2 md:p-12">
         <div>
           <p className="flex animate-rise items-center gap-3 font-sans text-[11px] font-medium uppercase tracking-[.18em] text-muted"><span className="h-px w-8 bg-gold" />AyushPicks · Honest picks · Real pros &amp; limitations</p>
-          <h1 className="mt-3 max-w-md animate-rise [animation-delay:80ms] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl"><span className="sr-only">AyushPicks: </span>Discover products worth knowing.</h1>
+          <h1 className="mt-3 max-w-md text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl"><span className="sr-only">AyushPicks: </span>Discover products worth knowing.</h1>
           <p className="mt-4 max-w-md animate-rise text-muted [animation-delay:160ms]">Explore useful products, understand what they do, compare your options, and decide what&apos;s actually worth buying.</p>
           <div className="mt-6 flex animate-rise flex-wrap gap-3 [animation-delay:240ms]"><Link href="/search" className="btn-primary">Explore Products</Link><Link href="/compare" className="btn-ghost">Compare Products</Link></div>
           <div className="mt-6 w-full min-w-0 max-w-md animate-rise [animation-delay:320ms]"><SearchBox big /><div className="mt-3 flex flex-wrap gap-2">{EXAMPLES.map((e) => <Link key={e} href={`/search?q=${encodeURIComponent(e)}`} className="chip bg-white/60 transition hover:border-accent hover:text-ink">{e}</Link>)}</div></div>
         </div>
-        {hero ? (<Link href={`/product/${hero.slug}`} className="group block animate-rise rounded-2xl bg-white/80 p-3 shadow-soft [animation-delay:200ms] ring-1 ring-line transition hover:shadow-lg">
+        {hero ? (<Link href={`/product/${hero.slug}`} className="group block rounded-2xl bg-white/80 p-3 shadow-soft ring-1 ring-line transition hover:shadow-lg">
           <ProductImage p={hero} priority className="aspect-[4/3] rounded-xl bg-s1" />
           <div className="flex items-end justify-between gap-3 p-3"><div className="min-w-0"><span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">Featured pick</span>
             <h2 className="mt-2 truncate text-base font-semibold">{hero.name}</h2><div className="mt-1"><Rating value={hero.rating} count={hero.reviewCount} /></div></div>

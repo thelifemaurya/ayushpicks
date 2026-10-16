@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, ReactNode } from "react";
 import { Product, fmt, fmtMrp, discountPct } from "@/lib/data";
@@ -23,11 +24,17 @@ export function Stars({ value }: { value: number }) {
   return <span className="tracking-wider text-gold" aria-label={`${value} out of 5`}>{"★".repeat(n)}<span className="text-line">{"★".repeat(5 - n)}</span></span>;
 }
 export const altText = (p: Product, i = 0) => `${p.name}${p.subcategory ? ` ${p.subcategory.toLowerCase()}` : ""}${i ? ` – photo ${i + 1}` : ""}`;
-export function ProductImage({ p, className = "", priority = false, idx = 0 }: { p: Product; className?: string; priority?: boolean; idx?: number }) {
+// Hosts that next/image may optimise. Keep in sync with images.remotePatterns in next.config.js; other hosts use a plain <img>.
+const OPT_HOSTS = ["supabase.co", "media-amazon.com", "ssl-images-amazon.com", "flixcart.com", "myntassets.com", "nykaa.com"];
+const optimisable = (src: string) => { try { const u = new URL(src); return u.protocol === "https:" && OPT_HOSTS.some((h) => u.hostname === h || u.hostname.endsWith("." + h)); } catch { return false; } };
+export function ProductImage({ p, className = "", priority = false, idx = 0, sizes }: { p: Product; className?: string; priority?: boolean; idx?: number; sizes?: string }) {
+  const [bad, setBad] = useState(false);
   const src = p.images[idx];
   if (src) return (<div className={`relative overflow-hidden bg-s1 ${className}`}>
-    {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img src={src} alt={altText(p, idx)} width={800} height={800} loading={priority ? "eager" : "lazy"} decoding="async" fetchPriority={priority ? "high" : undefined} className="h-full w-full object-contain p-3" /></div>);
+    {optimisable(src) && !bad
+      ? <Image src={src} alt={altText(p, idx)} fill sizes={sizes || (priority ? "(max-width: 768px) 100vw, 560px" : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 320px")} priority={priority} onError={() => setBad(true)} className="object-contain p-3" />
+      : /* eslint-disable-next-line @next/next/no-img-element */
+        <img src={src} alt={altText(p, idx)} width={800} height={800} loading={priority ? "eager" : "lazy"} decoding="async" fetchPriority={priority ? "high" : undefined} className="h-full w-full object-contain p-3" />}</div>);
   const h = [...p.id].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
   return (<div role="img" aria-label={`${altText(p)} (image coming soon)`} className={`relative grid place-items-center overflow-hidden bg-s2 ${className}`}
     style={{ backgroundImage: `radial-gradient(circle at 30% 20%, hsl(${h} 20% 90%), transparent 65%)` }}>

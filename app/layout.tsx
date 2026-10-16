@@ -25,5 +25,5 @@ export const metadata: Metadata = {
   verification: { ...(process.env.NEXT_PUBLIC_GSC_VERIFICATION ? { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION } : {}), other: { "cuelinks-verification": "VERIFY-CL-P2ITAA", "google-adsense-account": "ca-pub-1101292617046429", ...(process.env.NEXT_PUBLIC_BING_VERIFICATION ? { "msvalidate.01": process.env.NEXT_PUBLIC_BING_VERIFICATION } : {}) } },
 };
 export default function Root({ children }: { children: React.ReactNode }) {
-  return <html lang="en" className={`${inter.variable} ${display.variable}`}><body><Script id="google-adsense" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1101292617046429" crossOrigin="anonymous" strategy="beforeInteractive" /><AppSplash /><AuthRedirect />{children}</body></html>;
+  return <html lang="en" className={`${inter.variable} ${display.variable}`}><body><Script id="google-adsense" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1101292617046429" crossOrigin="anonymous" strategy="afterInteractive" /><AppSplash /><AuthRedirect />{children}</body></html>;
 }
