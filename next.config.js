@@ -1,8 +1,6 @@
 module.exports = {
   reactStrictMode: true,
   poweredByHeader: false,
-  // Inline the (small) stylesheet so it no longer blocks first paint.
-  experimental: { inlineCss: true },
   images: {
     formats: ["image/avif", "image/webp"], minimumCacheTTL: 2592000,
     // Only known catalogue/storage hosts are optimised (a wildcard would let anyone use the image quota). Keep in sync with OPT_HOSTS in components/ui.tsx.
