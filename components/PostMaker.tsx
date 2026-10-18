@@ -7,6 +7,13 @@ const W = 1080, H = 1350;
 const C = { bg: "#F4E9DB", card: "#FFFFFF", ink: "#3B2A20", muted: "#8A7566", terra: "#B0694A", soft: "#EAD9C6", green: "#3F7A4B", red: "#B4483B" };
 const toList = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && !!x.trim()) : []);
 const shortName = (r: Row) => { let n = String(r.name || "").split(/\s[|–—]\s|\s-\s/)[0]; n = n.replace(/\s*\(.*?\)\s*$/, ""); return n.length > 80 ? n.slice(0, 77).trimEnd() + "…" : n; };
+// Lowest listed store price (what the site shows first) with its own MRP. Discount only when both are real numbers.
+function offer(r: Row) {
+  const offs = (Array.isArray(r.retailers) ? r.retailers : []).filter((x: Row) => Number(x?.price) > 0).sort((a: Row, b: Row) => Number(a.price) - Number(b.price));
+  const price = Number(offs[0]?.price ?? r.price) || 0, mrp = Number(offs[0]?.mrp ?? r.mrp) || 0;
+  const off = price > 0 && mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
+  return { price, mrp: off >= 5 ? mrp : 0, off: off >= 5 ? off : 0, store: String(offs[0]?.name || "") };
+}
 const nice = (n: number) => (n >= 100000 ? `${(n / 100000).toFixed(1).replace(/\.0$/, "")}L` : n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}K` : String(n));
 
 function fam(v: string, fb: string) { const x = getComputedStyle(document.body).getPropertyValue(v).trim(); return x || fb; }
@@ -48,7 +55,15 @@ async function drawSpotlight(canvas: HTMLCanvasElement, r: Row, o: { price: bool
   y += 6; const rating = Number(r.rating), rc = Number(r.review_count) || 0;
   if (rating > 0) { ctx.fillStyle = "#C9962E"; ctx.font = `600 38px ${o.sans}`; const stars = "★".repeat(Math.round(rating)) + "☆".repeat(5 - Math.round(rating)); ctx.fillText(stars, 90, y);
     const sw = ctx.measureText(stars).width; ctx.fillStyle = C.ink; ctx.font = `500 30px ${o.sans}`; ctx.fillText(`${rating.toFixed(1)}${rc ? `  ·  ${nice(rc)} ratings` : ""}`, 90 + sw + 20, y - 2); }
-  if (o.price && Number(r.price) > 0) { ctx.textAlign = "right"; ctx.fillStyle = C.terra; ctx.font = `600 46px ${o.sans}`; ctx.fillText(`₹${Number(r.price).toLocaleString("en-IN")}`, W - 90, y + 2); ctx.textAlign = "left"; }
+  const of = offer(r);
+  if (o.price && of.price > 0) {
+    ctx.textAlign = "right"; ctx.fillStyle = C.terra; ctx.font = `600 50px ${o.sans}`; ctx.fillText(`₹${of.price.toLocaleString("en-IN")}`, W - 90, y + 4);
+    if (of.mrp) { const t = `₹${of.mrp.toLocaleString("en-IN")}`; ctx.fillStyle = C.muted; ctx.font = `500 28px ${o.sans}`; const mw = ctx.measureText(t).width; ctx.fillText(t, W - 90, y - 48); ctx.fillRect(W - 90 - mw, y - 58, mw, 2.5); }
+    const d = r.price_checked_at ? new Date(r.price_checked_at) : null; ctx.fillStyle = C.muted; ctx.font = `500 21px ${o.sans}`;
+    ctx.fillText(`${of.store ? of.store + " · " : ""}price on ${d && !isNaN(+d) ? d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "listing date"}`, W - 90, y + 38);
+    ctx.textAlign = "left";
+    if (of.off) { ctx.fillStyle = C.terra; rr(ctx, W - 90 - 258, cy + 28, 230, 70, 35); ctx.fill(); ctx.fillStyle = "#fff"; ctx.font = `700 36px ${o.sans}`; ctx.textAlign = "center"; ctx.fillText(`${of.off}% OFF`, W - 90 - 143, cy + 75); ctx.textAlign = "left"; }
+  }
 }
 
 async function drawProsCons(canvas: HTMLCanvasElement, r: Row, o: { serif: string; sans: string }, logo: HTMLImageElement | null) {
@@ -65,7 +80,7 @@ async function drawProsCons(canvas: HTMLCanvasElement, r: Row, o: { serif: strin
 }
 
 export function PostMaker({ rows }: { rows: Row[] }) {
-  const [sel, setSel] = useState<string>(""); const [price, setPrice] = useState(false); const [msg, setMsg] = useState("");
+  const [sel, setSel] = useState<string>(""); const [price, setPrice] = useState(true); const [msg, setMsg] = useState("");
   const a = useRef<HTMLCanvasElement>(null), b = useRef<HTMLCanvasElement>(null);
   const list = useMemo(() => rows.filter((x) => x.published), [rows]);
   const r = list.find((x) => x.id === sel) || list[0];
@@ -98,7 +113,7 @@ export function PostMaker({ rows }: { rows: Row[] }) {
     <h2 className="text-lg font-semibold">Instagram posts</h2>
     <p className="mt-1 text-sm text-muted">Pick a product. You get ready 4:5 images in one theme. Tap Share to send straight to Instagram, or it downloads.</p>
     <select value={r?.id} onChange={(e) => setSel(e.target.value)} className="mt-3 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm">{list.map((x) => <option key={x.id} value={x.id}>{shortName(x).slice(0, 70)}</option>)}</select>
-    <label className="mt-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={price} onChange={(e) => setPrice(e.target.checked)} /> Show price on image <span className="text-xs text-muted">(prices change, so off is safer)</span></label>
+    <label className="mt-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={price} onChange={(e) => setPrice(e.target.checked)} /> Show price and discount <span className="text-xs text-muted">(image shows the price date; prices change, so post soon)</span></label>
     {msg && <p className="mt-2 text-sm text-amber-800">{msg}</p>}
     <div className="mt-4 grid gap-6 sm:grid-cols-2">
       <div><canvas ref={a} className="w-full rounded-xl border border-line" style={{ aspectRatio: "4 / 5" }} /><button onClick={() => save(a.current, `${slug}-1`)} className="btn-primary mt-2 w-full !py-2">Share / save image 1</button></div>
