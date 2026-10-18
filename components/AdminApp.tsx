@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { sb } from "@/lib/sb";
 import { AutomationTab } from "@/components/AutomationTab";
+import { PostMaker } from "@/components/PostMaker";
 import { ADMIN_EMAIL, BUCKET } from "@/lib/site";
 import { CATEGORIES, slugify } from "@/lib/data";
 
@@ -325,7 +326,7 @@ export function AdminApp() {
   const [rows, setRows] = useState<Row[]>([]); const [f, setF] = useState<F>(EMPTY); const [msg, setMsg] = useState(""); const [busy, setBusy] = useState(false);
   const [pw, setPw] = useState(""); const [link, setLink] = useState(""); const [sugg, setSugg] = useState<Sugg[]>([]);
   const [qf, setQf] = useState({ store: "", url: "", text: "" }); const [ocr, setOcr] = useState(""); const [scanning, setScanning] = useState(false);
-  const [tab, setTab] = useState<"products" | "add" | "bulk" | "prices" | "suggest" | "auto">("products"); const [q, setQ] = useState(""); const [st, setSt] = useState<"all" | "published" | "draft">("all"); const [shown, setShown] = useState(30);
+  const [tab, setTab] = useState<"products" | "add" | "bulk" | "prices" | "suggest" | "auto" | "posts">("products"); const [q, setQ] = useState(""); const [st, setSt] = useState<"all" | "published" | "draft">("all"); const [shown, setShown] = useState(30);
   const isAdmin = session?.user.email?.toLowerCase() === ADMIN_EMAIL;
   useEffect(() => {
     sb.auth.getSession().then(({ data }) => { setSession(data.session); setReady(true); });
@@ -486,7 +487,7 @@ export function AdminApp() {
     <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-semibold">AyushPicks Admin</h1>
       <div className="flex gap-2"><a href="/" target="_blank" rel="noopener" className="btn-ghost">View site ↗</a><button onClick={() => sb.auth.signOut()} className="btn-ghost">Sign out</button></div></div>
     <nav aria-label="Admin sections" className="sticky top-0 z-30 -mx-4 mt-4 flex gap-2 overflow-x-auto border-b border-line bg-bg/95 px-4 py-2 backdrop-blur sm:mx-0 sm:px-0">
-      {([["products", `Products (${rows.length})`], ["add", f.id ? "Edit product" : "Add product"], ["bulk", "Bulk add"], ["prices", `Prices${stale ? ` (${stale})` : ""}`], ["auto", "Automation"], ["suggest", `Suggestions${sugg.some((x) => x.status === "new") ? ` (${sugg.filter((x) => x.status === "new").length})` : ""}`]] as const).map(([k, label]) => (
+      {([["products", `Products (${rows.length})`], ["add", f.id ? "Edit product" : "Add product"], ["bulk", "Bulk add"], ["prices", `Prices${stale ? ` (${stale})` : ""}`], ["posts", "Instagram"], ["auto", "Automation"], ["suggest", `Suggestions${sugg.some((x) => x.status === "new") ? ` (${sugg.filter((x) => x.status === "new").length})` : ""}`]] as const).map(([k, label]) => (
         <button key={k} onClick={() => { setTab(k); window.scrollTo({ top: 0 }); }} aria-current={tab === k ? "page" : undefined} className={`${tab === k ? "btn-primary" : "btn-ghost"} shrink-0 !py-2`}>{label}</button>))}
     </nav>
     {tab === "add" && <section className="mt-6 rounded-xl border border-line bg-bg p-5"><h2 className="text-lg font-semibold">{f.id ? "Edit product" : "Add a product"}</h2>
@@ -540,6 +541,7 @@ export function AdminApp() {
     </section>}
     {tab === "bulk" && <BulkAdd rows={rows} reload={load} say={setMsg} done={() => { setTab("products"); window.scrollTo({ top: 0 }); }} />}
     {tab === "suggest" && <Suggestions items={sugg} reload={loadSugg} say={setMsg} onAdd={async (x) => { setF({ ...EMPTY, name: x.name ?? "" }); setLink(x.url); setTab("add"); window.scrollTo({ top: 0 }); setMsg("Link filled in. Tap the quick-fill button to read the product, then save it as a draft ✓"); await sb.from("ayushpicks_suggestions").update({ status: "added" }).eq("id", x.id); loadSugg(); }} />}
+    {tab === "posts" && <PostMaker rows={rows} />}
     {tab === "auto" && <AutomationTab say={setMsg} reloadProducts={load} />}
     {tab === "prices" && <PriceRefresh rows={rows} reload={load} say={setMsg} />}
     {tab === "products" && <section className="mt-6">
